@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TES KECERDASAN UMUM SERI 2 - Persona Research & Consulting</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e67e22;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --neutral-grey: #cbd5e1;
+            --light-bg: #f4f6f9;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 26px;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        /* Layout Grid Utama */
+        .quiz-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        @media (max-width: 850px) {
+            .quiz-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .instruction-card {
+            background: #fff5ec;
+            padding: 15px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 14px 20px;
+            background: #fff;
+            border: 2px solid var(--neutral-grey);
+            border-radius: 6px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .option-btn.selected {
+            background: var(--secondary-color);
+            color: #fff;
+            border-color: #d35400;
+        }
+
+        .option-letter {
+            font-weight: bold;
+            background: rgba(0,0,0,0.05);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .option-btn.selected .option-letter {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Navigasi Panel Kanan */
+        .sidebar-panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .grid-btn {
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        /* Status Warna Tombol Navigasi */
+        .grid-btn.unanswered {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        .grid-btn.answered {
+            background: #3498db;
+            color: #fff;
+        }
+        .grid-btn.active-now {
+            background: var(--success-color) !important;
+            color: #fff !important;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.4);
+        }
+
+        /* Tombol Kontrol Bawah */
+        .control-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        #prevBtn { background: var(--primary-color); }
+        #prevBtn:hover { background: #1a252f; }
+        #prevBtn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        #nextBtn { background: var(--primary-color); }
+        #nextBtn:hover { background: #1a252f; }
+
+        #submitBtn { background: var(--success-color); }
+        #submitBtn:hover { background: #27ae60; }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: bold;
+            color: #7f8c8d;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Area Hasil / Result Section */
+        .result-section {
+            display: none;
+        }
+
+        .score-box {
+            text-align: center;
+            background: var(--success-color);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .score-box h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .score-num {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .print-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .download-btn {
+            padding: 14px 35px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .download-btn:hover {
+            background: #2980b9;
+        }
+
+        .recap-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 22px;
+            margin-bottom: 25px;
+        }
+
+        .recap-header {
+            font-size: 16px;
+            font-weight: bold;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge.correct { background: var(--success-color); }
+        .badge.wrong { background: var(--danger-color); }
+        .badge.unanswered { background: #f1c40f; }
+
+        .recap-details {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .explanation-box {
+            background: #edf2f7;
+            padding: 15px;
+            border-left: 5px solid #4a5568;
+            margin-top: 12px;
+            font-size: 14px;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.5;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Pengaturan Cetak Halaman (CSS Khusus Print) */
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+                color: #000;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 0;
+            }
+            #quizArea, .print-area, .sidebar-panel, .control-actions, .progress-container {
+                display: none !important;
+            }
+            .result-section {
+                display: block !important;
+            }
+            .score-box {
+                border: 2px solid #000;
+                background: #fff !important;
+                color: #000 !important;
+                padding: 20px;
+            }
+            .recap-card {
+                page-break-inside: avoid;
+                border: 1px solid #94a3b8;
+                background: #fff !important;
+                margin-bottom: 20px;
+            }
+            .explanation-box {
+                background: #f1f5f9 !important;
+                border-left: 4px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>SIMULASI TRYOUT TES KECERDASAN UMUM - SERI 2</h1>
+        <p>Persona Research & Consulting</p>
+    </div>
+
+    <div id="quizArea">
+        <div class="progress-container">
+            <div class="progress-text">
+                <span id="progressStep">Memuat data...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        
+        <div id="mainInstruction" class="instruction-card">Memuat Instruksi Subtes...</div>
+        
+        <div class="quiz-layout">
+            <div>
+                <div id="quizContainer"></div>
+                
+                <div class="control-actions">
+                    <button id="prevBtn" class="action-btn" onclick="prevQuestion()">Sebelumnya</button>
+                    <button id="nextBtn" class="action-btn" onclick="nextQuestion()">Selanjutnya</button>
+                    <button id="submitBtn" class="action-btn" onclick="calculateScore()">Selesai & Kirim Hasil</button>
+                </div>
+            </div>
+
+            <div class="sidebar-panel">
+                <div class="sidebar-title">Navigasi Nomor Soal</div>
+                <div id="navGrid" class="nav-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultArea" class="result-section">
+        <div class="score-box">
+            <h3>Hasil Evaluasi Mandiri Anda</h3>
+            <div class="score-num" id="finalScore">0</div>
+            <p id="scoreStats">Benar: 0 | Salah: 0 | Kosong: 0 dari 150 Soal</p>
+        </div>
+
+        <div class="print-area">
+            <button class="download-btn" onclick="printResult()">
+                💾 Download / Cetak PDF Hasil Evaluasi
+            </button>
+        </div>
+        
+        <h2>Rekap Jawaban & Pembahasan Lengkap</h2>
+        <div id="recapContainer"></div>
+    </div>
+</div>
+
+<script>
+// Database Soal Lengkap - Seri 2 (150 Soal Utuh Sesuai File Asli)
+const masterQuestions = [
+    // === SUBTES 1: MELENGKAPI KALIMAT (1-20) ===
+    { id: "s2_q01", number: 1, type: "multiple-choice", key: "a", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Keberhasilan penegakan hukum yang adil dan berwibawa di masyarakat sangat bertumpu pada...", options: { a: "integritas aparat", b: "jumlah personel", c: "kelengkapan senjata", d: "opini publik", e: "anggaran dinas" }, explanation: "Integritas moral serta profesionalisme aparat penegak hukum merupakan pilar utama terciptanya keadilan hukum yang berwibawa." },
+    { id: "s2_q02", number: 2, type: "multiple-choice", key: "d", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Lawan kata yang paling tepat untuk menggambarkan karakter seseorang yang 'apatis' adalah...", options: { a: "tenang", b: "pasif", c: "mandiri", d: "peduli", e: "emosional" }, explanation: "Apatis berarti acuh tak acuh atau tidak peduli, sehingga lawan kata yang paling berlawanan adalah peduli." },
+    { id: "s2_q03", number: 3, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Kertas koran lama memiliki keterikatan bahan baku paling dekat dengan...", options: { a: "serat kapas", b: "bubur kayu", c: "kulit hewan", d: "getah karet", e: "anyaman bambu" }, explanation: "Kertas koran diproduksi secara massal dari serat selulosa mekanis yang bersumber utama dari bubur kayu (pulp)." },
+    { id: "s2_q04", number: 4, type: "multiple-choice", key: "e", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Dokumen tertulis yang sah dan memuat kronologi peristiwa pelanggaran hukum secara resmi disebut...", options: { a: "nota dinas", b: "surat izin", c: "buku harian", d: "surat edaran", e: "berita acara" }, explanation: "Berita Acara (seperti BAP) merupakan dokumen yuridis formal untuk merekam kronologi kejadian hukum secara sah." },
+    { id: "s2_q05", number: 5, type: "multiple-choice", key: "a", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah barometer udara di pos pantau cuaca selalu menampilkan data berupa...", options: { a: "tekanan udara", b: "kecepatan angin", c: "tinggi ombak", d: "curah hujan", e: "kelembapan tanah" }, explanation: "Fungsi mendasar dan utama dari alat ukur barometer adalah mengukur tingkat tekanan udara (atmosfer)." },
+    { id: "s2_q06", number: 6, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Aliran air yang keluar dari celah batuan di daerah pegunungan tinggi bersumber dari...", options: { a: "muara sungai", b: "mata air", c: "aliran parit", d: "air laut", e: "waduk buatan" }, explanation: "Aliran air murni alami di area hulu pegunungan berasal dari pemunculan air tanah yang disebut mata air." },
+    { id: "s2_q07", number: 7, type: "multiple-choice", key: "e", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Orang yang memiliki keyakinan teguh bahwa kebaikan universal akan selalu menang disebut...", options: { a: "skeptis", b: "apatis", c: "pesimistis", d: "realistis", e: "optimistis" }, explanation: "Optimistis adalah pandangan psikologis yang selalu berpengharapan baik dan positif dalam menatap masa depan." },
+    { id: "s2_q08", number: 8, type: "multiple-choice", key: "d", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah termometer klinis digital dirancang khusus oleh para ahli untuk mendeteksi...", options: { a: "tekanan darah", b: "denyut nadi", c: "kadar oksigen", d: "suhu tubuh", e: "berat badan" }, explanation: "Termometer secara fisis berfungsi sebagai instrumen pengukur derajat panas/suhu (dalam hal klinis: suhu tubuh)." },
+    { id: "s2_q09", number: 9, type: "multiple-choice", key: "a", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Tindakan membersihkan saluran air secara gotong royong oleh warga mencerminkan rasa...", options: { a: "kepedulian sosial", b: "kebutuhan pribadi", c: "kewajiban hukum", d: "kesenangan kelompok", e: "keuntungan ekonomi" }, explanation: "Gotong royong membersihkan fasilitas umum adalah manifestasi nyata dari solidaritas dan kepedulian sosial lingkungan." },
+    { id: "s2_q10", number: 10, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Pemberian rambu-rambu suar di wilayah perairan laut dangkal bertujuan untuk...", options: { a: "menangkap ikan", b: "menahan abrasi", c: "navigasi kapal", d: "mengukur pasang", e: "menjaga perbatasan" }, explanation: "Rambu suar/mercusuar berfungsi memberikan marka petunjuk visual bagi keselamatan navigasi pelayaran kapal." },
+    { id: "s2_q11", number: 11, type: "multiple-choice", key: "d", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Pertunjukan teater tradisional yang menggabungkan unsur dialog, tari, dan musik khas Betawi dinamakan...", options: { a: "ketoprak", b: "ludruk", c: "mamanda", d: "lenong", e: "wayang orang" }, explanation: "Lenong merupakan seni pertunjukan sandiwara atau teater rakyat tradisional yang berasal dari kebudayaan Betawi." },
+    { id: "s2_q12", number: 12, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Proses pertukaran gas oksigen dengan karbon dioksida pada tubuh manusia berlangsung di organ...", options: { a: "jantung", b: "paru-paru", c: "hati", d: "ginjal", e: "lambung" }, explanation: "Sistem respirasi manusia memproses pertukaran oksigen dan karbon dioksida di dalam alveolus paru-paru." },
+    { id: "s2_q13", number: 13, type: "multiple-choice", key: "a", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Penyebaran berita palsu secara cepat ke jutaan pengguna saat ini marak dipicu oleh...", options: { a: "media sosial", b: "surat kabar", c: "siaran radio", d: "papan pengumuman", e: "majalah dinding" }, explanation: "Karakteristik penyebaran informasi yang instan tanpa filter validasi ketat melekat pada platform media sosial." },
+    { id: "s2_q14", number: 14, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Kondisi kenaikan harga barang-barang kebutuhan pokok secara massal dan terus-menerus disebut...", options: { a: "resesi", b: "deflesi", c: "inflasi", d: "devaluasi", e: "stagnasi" }, explanation: "Inflasi secara makroekonomi diartikan sebagai proses meningkatnya harga-harga secara umum dan kontinu." },
+    { id: "s2_q15", number: 15, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Pembangunan terasering di lahan pertanian lereng pegunungan ditujukan untuk mencegah...", options: { a: "hama tanaman", b: "erosi tanah", c: "kekeringan air", d: "suhu dingin", e: "luapan badai" }, explanation: "Terasering dibuat berundak-undak untuk memperkecil kecepatan aliran permukaan sehingga efektif mencegah erosi." },
+    { id: "s2_q16", number: 16, type: "multiple-choice", key: "a", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Sebuah pesawat terbang komersial membutuhkan landasan pacu yang steril di area...", options: { a: "bandar udara", b: "stasiun pusat", c: "terminal kota", d: "pelabuhan laut", e: "depo transit" }, explanation: "Infrastruktur lepas landas dan pendaratan bagi moda transportasi pesawat terbang mutlak berada di bandar udara." },
+    { id: "s2_q17", number: 17, type: "multiple-choice", key: "e", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Pemakaian sabuk pengaman bagi pengendara mobil merupakan prosedur vital untuk...", options: { a: "meningkatkan kecepatan", b: "menjaga kenyamanan", c: "menghindari tilang", d: "merawat kebersihan kursi", e: "mereduksi fatalitas benturan" }, explanation: "Sabuk keselamatan dirancang menahan tubuh pengemudi tetap di kursi saat terjadi deselerasi mendadak/benturan." },
+    { id: "s2_q18", number: 18, type: "multiple-choice", key: "d", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Proses turunnya butiran air dari awan atmosfer menuju permukaan bumi akibat gravitasi disebut...", options: { a: "evaporasi", b: "kondensasi", c: "sublimasi", d: "presipitasi", e: "infiltrasi" }, explanation: "Presipitasi adalah segala bentuk curahan cairan atau padatan dari atmosfer yang jatuh ke bumi (seperti hujan)." },
+    { id: "s2_q19", number: 19, type: "multiple-choice", key: "b", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Kenaikan pangkat luar biasa diberikan kepada prajurit atas dasar...", options: { a: "masa kerja lama", b: "prestasi dan jasa besar", c: "kedekatan personal", d: "kelulusan ujian teori", e: "tingkat usia senior" }, explanation: "Kenaikan pangkat luar biasa (KPLB) dianugerahkan atas dasar keberhasilan prestasi/jasa luar biasa dalam tugas." },
+    { id: "s2_q20", number: 20, type: "multiple-choice", key: "c", instruction: "Subtes 1: Pilihlah kata pengganti yang tepat agar kalimat menjadi sempurna!", text: "Alarat yang digunakan untuk memantau aktivitas dan denyut jantung pasien secara visual bernama...", options: { a: "termometer", b: "sfigmomanometer", c: "elektrokardiogram", d: "stetoskop", e: "audiometer" }, explanation: "Elektrokardiogram (EKG) merekam dan menampilkan aktivitas kelistrikan otot jantung dalam bentuk grafik visual." },
+
+    // === SUBTES 2: MENCARI KATA YANG BERBEDA (21-40) ===
+    { id: "s2_q21", number: 21, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "piring", b: "mangkok", c: "sendok", d: "garpu", e: "lemari es" }, explanation: "Piring, mangkok, sendok, garpu adalah peralatan makan langsung, sedangkan lemari es adalah alat elektronik dapur." },
+    { id: "s2_q22", number: 22, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "hiu", b: "paus", c: "buaya", d: "lumba-lumba", e: "pesut" }, explanation: "Paus, lumba-lumba, pesut adalah mamalia air, hiu adalah ikan, sedangkan buaya adalah reptil (buaya paling berbeda secara kelas reptilia dibanding lainnya yang berenang penuh)." },
+    { id: "s2_q23", number: 23, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "kapal selam", b: "sepeda motor", c: "sedan", d: "jeep", e: "bus kota" }, explanation: "Sepeda motor, sedan, jeep, bus kota beroperasi di darat, sedangkan kapal selam beroperasi di air/bawah laut." },
+    { id: "s2_q24", number: 24, type: "multiple-choice", key: "b", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "wortel", b: "semangka", c: "kentang", d: "lobak", e: "singkong" }, explanation: "Wortel, kentang, lobak, singkong adalah jenis sayuran/tanaman umbi bawah tanah, sedangkan semangka adalah buah merambat." },
+    { id: "s2_q25", number: 25, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "drum", b: "kendang", c: "tifa", d: "gong", e: "saksofon" }, explanation: "Drum, kendang, tifa, gong dimainkan dengan cara dipukul (perkusi), sedangkan saksofon dengan cara ditiup." },
+    { id: "s2_q26", number: 26, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "manis", b: "asin", c: "pahit", d: "hambar", e: "asam" }, explanation: "Manis, asin, pahit, asam adalah rasa pengecap dasar aktif, sedangkan hambar menunjukkan ketiadaan rasa." },
+    { id: "s2_q27", number: 27, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "hakim", b: "jaksa", c: "terdakwa", d: "pengacara", e: "notaris" }, explanation: "Hakim, jaksa, pengacara, notaris adalah nama keahlian/profesi hukum, sedangkan terdakwa adalah status subjek hukum." },
+    { id: "s2_q28", number: 28, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "jembatan", b: "kamar", c: "aula", d: "dapur", e: "ruang tamu" }, explanation: "Kamar, aula, dapur, ruang tamu adalah bagian interior ruangan gedung, sedangkan jembatan struktur jalan penyeberangan." },
+    { id: "s2_q29", number: 29, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "penghapus", b: "penggaris", c: "jangka", d: "rautan", e: "peta" }, explanation: "Penghapus, penggaris, jangka, rautan adalah alat penunjang tulis-menulis/gambar, sedangkan peta dokumen spasial wilayah." },
+    { id: "s2_q30", number: 30, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "kemeja", b: "kaos", c: "sabuk", d: "jas", e: "baju hangat" }, explanation: "Kemeja, kaos, jas, baju hangat adalah pakaian badan, sedangkan sabuk adalah aksesoris pengikat pinggang." },
+    { id: "s2_q31", number: 31, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "gunung", b: "selat", c: "teluk", d: "tanjung", e: "pantai" }, explanation: "Selat, teluk, tanjung, pantai berkaitan langsung dengan morfologi perairan pantai, sedangkan gunung morfologi daratan tinggi." },
+    { id: "s2_q32", number: 32, type: "multiple-choice", key: "b", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "kaca", b: "alun-alun", c: "semen", d: "batu bata", e: "genteng" }, explanation: "Kaca, semen, batu bata, genteng adalah material fisik bahan bangunan, sedangkan alun-alun adalah ruang terbuka publik." },
+    { id: "s2_q33", number: 33, type: "multiple-choice", key: "d", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "senin", b: "kamis", c: "sabtu", d: "juli", e: "minggu" }, explanation: "Senin, kamis, sabtu, minggu adalah nama hari, sedangkan juli adalah nama bulan." },
+    { id: "s2_q34", number: 34, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "melihat", b: "mendengar", c: "berpikir", d: "meraba", e: "mencium" }, explanation: "Melihat, mendengar, meraba, mencium adalah aktivitas panca indra fisik, sedangkan berpikir adalah aktivitas kognitif otak." },
+    { id: "s2_q35", number: 35, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "bola", b: "persegi panjang", c: "belah ketupat", d: "jajar genjang", e: "layang-layang" }, explanation: "Persegi panjang, belah ketupat, jajar genjang, layang-layang adalah bangun datar 2D, sedangkan bola bangun ruang 3D." },
+    { id: "s2_q36", number: 36, type: "multiple-choice", key: "e", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "singa", b: "serigala", c: "harimau", d: "hering", e: "kelinci" }, explanation: "Singa, serigala, harimau, hering merupakan kelompok hewan karnivora/pemakan daging, sedangkan kelinci herbivora." },
+    { id: "s2_q37", number: 37, type: "multiple-choice", key: "b", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "buku nikah", b: "mesin tik", c: "ijazah", d: "sertifikat", e: "akta lahir" }, explanation: "Buku nikah, ijazah, sertifikat, akta lahir merupakan dokumen resmi berharga, sedangkan mesin tik alat mekanis pembuat teks." },
+    { id: "s2_q38", number: 38, type: "multiple-choice", key: "a", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "australia", b: "jepang", c: "india", d: "korea selatan", e: "vietnam" }, explanation: "Jepang, India, Korea Selatan, Vietnam berada di benua Asia, sedangkan Australia adalah negara benua tersendiri." },
+    { id: "s2_q39", number: 39, type: "multiple-choice", key: "c", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "laptop", b: "komputer", c: "listrik", d: "smartphone", e: "tablet" }, explanation: "Laptop, komputer, smartphone, tablet adalah perangkat keras gadget gawai, sedangkan listrik adalah sumber daya energinya." },
+    { id: "s2_q40", number: 40, type: "multiple-choice", key: "b", instruction: "Subtes 2 (Memilih 1 Kata Berbeda): Pilihlah satu kata yang TIDAK SATU JENIS atau TIDAK SATU KELOMPOK dengan kata lainnya!", options: { a: "timur laut", b: "bawah", c: "barat daya", d: "barat laut", e: "tenggara" }, explanation: "Timur laut, barat daya, barat laut, tenggara orientasi arah mata angin kompas, sedangkan bawah arah vertikal." },
+
+    // === SUBTES 3: HUBUNGAN KATA (41-60) ===
+    { id: "s2_q41", number: 41, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Laut : Air = Gurun : ...", options: { a: "Kaktus", b: "Unta", c: "Pasir", d: "Panas", e: "Oase" }, explanation: "Laut secara fisik didominasi oleh air; gurun secara fisik didominasi oleh hamparan pasir." },
+    { id: "s2_q42", number: 42, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Kecepatan : Spedometer = Tekanan Darah : ...", options: { a: "Tensimeter", b: "Stetoskop", c: "Termometer", d: "Altimeter", e: "Barometer" }, explanation: "Kecepatan diukur menggunakan spedometer; tekanan darah diukur menggunakan tensimeter (sfigmomanometer)." },
+    { id: "s2_q43", number: 43, type: "multiple-choice", key: "e", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Es : Membeku = Air : ...", options: { a: "Dingin", b: "Uap", c: "Mengalir", d: "Mendidih", e: "Mencair" }, explanation: "Es berkarakteristik padat/membeku; sebaliknya air berkarakteristik cair/mencair (atau proses es menjadi air)." },
+    { id: "s2_q44", number: 44, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Mengantuk : Tidur = Lelah : ...", options: { a: "Bekerja", b: "Istirahat", c: "Berlari", d: "Olahraga", e: "Bangun" }, explanation: "Kondisi mengantuk diatasi dengan tidur; kondisi lelah diatasi dengan melakukan istirahat." },
+    { id: "s2_q45", number: 45, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Kompor : Gas = Manusia : ...", options: { a: "Udara", b: "Darah", c: "Air", d: "Makanan", e: "Energi" }, explanation: "Kompor mendapatkan sumber energi operasional dari gas; manusia memperoleh energi utama dari makanan." },
+    { id: "s2_q46", number: 46, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Fotografer : Kamera = Penulis : ...", options: { a: "Pena", b: "Buku", c: "Kertas", d: "Ide", e: "Komputer" }, explanation: "Alat kerja pokok seorang fotografer adalah kamera; alat kerja pokok konvensional seorang penulis adalah pena." },
+    { id: "s2_q47", number: 47, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Mekanik : Bengkel = Dosen : ...", options: { a: "Mahasiswa", b: "Buku", c: "Kelas", d: "Kampus", e: "Rektor" }, explanation: "Tempat kerja utama mekanik berada di bengkel; tempat kerja utama dosen berada di kampus." },
+    { id: "s2_q48", number: 48, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Ulat : Daun = Nyamuk : ...", options: { a: "Air", b: "Darah", c: "Kulit", d: "Terbang", e: "Serangga" }, explanation: "Ulat mengonsumsi makanan berupa daun; nyamuk (betina) mengonsumsi makanan berupa darah." },
+    { id: "s2_q49", number: 49, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Cabai : Pedas = Lemon : ...", options: { a: "Manis", b: "Kuning", c: "Asam", d: "Segar", e: "Pahit" }, explanation: "Karakteristik rasa yang melekat kuat pada cabai adalah pedas; karakteristik rasa lemon adalah asam." },
+    { id: "s2_q50", number: 50, type: "multiple-choice", key: "e", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Pakaian : Lemari = Uang : ...", options: { a: "Dompet", b: "Saku", c: "Kasir", d: "Toko", e: "Bank" }, explanation: "Tempat penyimpanan resmi dan aman berskala besar untuk pakaian adalah lemari; untuk uang adalah bank." },
+    { id: "s2_q51", number: 51, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Piano : Tekan = Biola : ...", options: { a: "Petik", b: "Gesek", c: "Tiup", d: "Pukul", e: "Goyang" }, explanation: "Piano dimainkan dengan cara ditekan tutsnya; sedangkan biola dimainkan dengan cara digesek senarnya." },
+    { id: "s2_q52", number: 52, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Cacing : Tanah = Burung : ...", options: { a: "Sarang", b: "Udara", c: "Pohon", d: "Langit", e: "Telur" }, explanation: "Cacing bertempat tinggal/membuat habitat di dalam tanah; burung membuat habitat tinggal di sarang." },
+    { id: "s2_q53", number: 53, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Maret : April = Sabtu : ...", options: { a: "Hari", b: "Jumat", c: "Senin", d: "Minggu", e: "Besok" }, explanation: "Bulan April berada langsung setelah bulan Maret; Hari Minggu berada langsung setelah hari Sabtu." },
+    { id: "s2_q54", number: 54, type: "multiple-choice", key: "c", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Berpikir : Otak = Memompa Darah : ...", options: { a: "Paru-paru", b: "Hati", c: "Jantung", d: "Ginjal", e: "Lambung" }, explanation: "Berpikir dikerjakan secara fisiologis oleh organ otak; memompa darah ke sistem tubuh mutlak tugas jantung." },
+    { id: "s2_q55", number: 55, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Guru : Sekolah = Petani : ...", options: { a: "Sawah", b: "Pasar", c: "Cangkul", d: "Padi", e: "Desa" }, explanation: "Tempat pengabdian profesi spesifik guru adalah di sekolah; profesi petani di sawah/ladang." },
+    { id: "s2_q56", number: 56, type: "multiple-choice", key: "e", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Buku : Perpustakaan = Saham : ...", options: { a: "Bank", b: "Pegadaian", c: "Kantor Pajak", d: "Koperasi", e: "Bursa Efek" }, explanation: "Koleksi buku dihimpun dan dikelola secara terpusat di perpustakaan; transaksi modal saham dikelola di bursa efek." },
+    { id: "s2_q57", number: 57, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Haus : Minum = Lapar : ...", options: { a: "Dapur", b: "Makan", c: "Kenyang", d: "Masak", e: "Restoran" }, explanation: "Sensasi fisiologis haus dipulihkan melalui aktivitas minum; sensasi lapar dipulihkan melalui aktivitas makan." },
+    { id: "s2_q58", number: 58, type: "multiple-choice", key: "d", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Pilot : Pesawat = Masinis : ...", options: { a: "Kapal Laut", b: "Sepeda Motor", c: "Bus Kota", d: "Kereta Api", e: "Truk Tangki" }, explanation: "Pilot memegang kendali atas operasional pesawat udara; sedangkan masinis mengoperasikan armada kereta api." },
+    { id: "s2_q59", number: 59, type: "multiple-choice", key: "a", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Kulit : Peraba = Lidah : ...", options: { a: "Pengecap", b: "Perasa", c: "Makanan", d: "Mulut", e: "Bicara" }, explanation: "Fungsi sensorik anatomis dari organ kulit adalah peraba; sedangkan organ lidah berfungsi sebagai pengecap." },
+    { id: "s2_q60", number: 60, type: "multiple-choice", key: "b", instruction: "Subtes 3: Tentukan hubungan antara dua kata pertama, lalu pilihlah kata yang memiliki hubungan setara untuk kata ketiga!", text: "Kereta : Stasiun = Bus : ...", options: { a: "Jalan", b: "Terminal", c: "Halte", d: "Sopir", e: "Depo" }, explanation: "Tempat pemberhentian utama dan regulasi penumpang kereta adalah stasiun; sedangkan untuk bus adalah terminal." },
+
+    // === SUBTES 4: DERET ANGKA (61-80) ===
+    { id: "s2_q61", number: 61, type: "multiple-choice", key: "c", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "2, 4, 6, 8, 10, ...", options: { a: "11", b: "13", c: "12", d: "14", e: "16" }, explanation: "Pola deret adalah operasi penjumlahan konstan (+2). Angka berikutnya: 10 + 2 = 12." },
+    { id: "s2_q62", number: 62, type: "multiple-choice", key: "d", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "5, 10, 15, 20, 25, ...", options: { a: "26", b: "28", c: "29", d: "30", e: "35" }, explanation: "Pola deret adalah penambahan kelipatan konstan (+5). Angka kelanjutan: 25 + 5 = 30." },
+    { id: "s2_q63", number: 63, type: "multiple-choice", key: "a", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "3, 6, 12, 24, 48, ...", options: { a: "96", b: "72", c: "84", d: "90", e: "100" }, explanation: "Pola pengembangan deret bernilai perkalian dua kali lipat (x2). Kelanjutannya: 48 x 2 = 96." },
+    { id: "s2_q64", number: 64, type: "multiple-choice", key: "b", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "100, 90, 80, 70, 60, ...", options: { a: "55", b: "50", c: "45", d: "40", e: "30" }, explanation: "Pola deret adalah pengurangan konstan (-10). Angka berikutnya: 60 - 10 = 50." },
+    { id: "s2_q65", number: 65, type: "multiple-choice", key: "e", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "1, 4, 9, 16, 25, ...", options: { a: "30", b: "32", c: "34", d: "35", e: "36" }, explanation: "Pola deret adalah barisan bilangan kuadrat (1², 2², 3², 4², 5²). Angka berikutnya: 6² = 36." },
+    { id: "s2_q66", number: 66, type: "multiple-choice", key: "b", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "1, 2, 4, 7, 11, ...", options: { a: "15", b: "16", c: "17", d: "18", e: "19" }, explanation: "Pola penambahan bertingkat (+1, +2, +3, +4, +5). Angka berikutnya: 11 + 5 = 16." },
+    { id: "s2_q67", number: 67, type: "multiple-choice", key: "c", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "80, 40, 20, 10, ...", options: { a: "8", b: "6", c: "5", d: "4", e: "2" }, explanation: "Pola pembagian konstan berharga setengah (:2). Angka kelanjutan: 10 / 2 = 5." },
+    { id: "s2_q68", number: 68, type: "multiple-choice", key: "a", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "2, 3, 5, 8, 12, ...", options: { a: "17", b: "16", c: "15", d: "14", e: "13" }, explanation: "Pola penambahan naik berurutan (+1, +2, +3, +4, +5). Angka selanjutnya: 12 + 5 = 17." },
+    { id: "s2_q69", number: 69, type: "multiple-choice", key: "d", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "7, 14, 21, 28, ...", options: { a: "32", b: "33", c: "34", d: "35", e: "42" }, explanation: "Pola penjumlahan konstan kelipatan 7 (+7). Angka selanjutnya: 28 + 7 = 35." },
+    { id: "s2_q70", number: 70, type: "multiple-choice", key: "b", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "40, 37, 34, 31, 28, ...", options: { a: "24", b: "25", c: "26", d: "23", e: "22" }, explanation: "Pola operasi pengurangan berulang secara konstan (-3). Angka berikutnya: 28 - 3 = 25." },
+    { id: "s2_q71", number: 71, type: "multiple-choice", key: "c", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "12, 14, 18, 24, 32, ...", options: { a: "40", b: "41", c: "42", d: "44", e: "46" }, explanation: "Pola penambahan bilangan genap berurutan (+2, +4, +6, +8, +10). Angka berikutnya: 32 + 10 = 42." },
+    { id: "s2_q72", number: 72, type: "multiple-choice", key: "e", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "3, 4, 6, 9, 13, ...", options: { a: "15", b: "16", c: "17", d: "18", e: "19" }, explanation: "Pola penambahan meningkat berkelanjutan (+1, +2, +3, +4, +5). Angka berikutnya: 13 + 5 = 19." },
+    { id: "s2_q73", number: 73, type: "multiple-choice", key: "b", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "64, 32, 16, 8, ...", options: { a: "6", b: "4", c: "2", d: "1", e: "0" }, explanation: "Pola pembagian konstan berharga dua (:2). Angka berikutnya: 8 / 2 = 4." },
+    { id: "s2_q74", number: 74, type: "multiple-choice", key: "a", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "9, 18, 27, 36, 45, ...", options: { a: "54", b: "50", c: "52", d: "56", e: "63" }, explanation: "Pola penambahan konstan kelipatan 9 (+9). Angka berikutnya: 45 + 9 = 54." },
+    { id: "s2_q75", number: 75, type: "multiple-choice", key: "c", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "50, 45, 40, 35, 30, ...", options: { a: "20", b: "24", c: "25", d: "26", e: "15" }, explanation: "Pola pengurangan stabil secara konstan (-5). Angka berikutnya: 30 - 5 = 25." },
+    { id: "s2_q76", number: 76, type: "multiple-choice", key: "c", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "50, 45, 41, 38, 36, ...", options: { a: "33", b: "34", c: "35", d: "32", e: "31" }, explanation: "Pola pengurangan mengecil bertahap (-5, -4, -3, -2, -1). Angka berikutnya: 36 - 1 = 35." },
+    { id: "s2_q77", number: 77, type: "multiple-choice", key: "b", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "1, 3, 7, 15, 31, ...", options: { a: "60", b: "63", c: "64", d: "65", e: "66" }, explanation: "Pola penambahan bernilai dua kali lipat (+2, +4, +8, +16, +32). Angka berikutnya: 31 + 32 = 63." },
+    { id: "s2_q78", number: 78, type: "multiple-choice", key: "d", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "4, 9, 14, 19, 24, ...", options: { a: "26", b: "27", c: "28", d: "29", e: "30" }, explanation: "Pola deret penambahan konstan (+5). Angka berikutnya: 24 + 5 = 29." },
+    { id: "s2_q79", number: 79, type: "multiple-choice", key: "a", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "10, 11, 13, 16, 20, ...", options: { a: "25", b: "24", c: "23", d: "22", e: "26" }, explanation: "Pola penambahan naik berurutan (+1, +2, +3, +4, +5). Angka berikutnya: 20 + 5 = 25." },
+    { id: "s2_q80", number: 80, type: "multiple-choice", key: "e", instruction: "Subtes 4: Temukan pola logis dari deret angka berikut untuk menentukan angka kelanjutannya!", text: "100, 98, 94, 88, 80, ...", options: { a: "74", b: "72", c: "75", d: "68", e: "70" }, explanation: "Pola pengurangan genap bertahap (-2, -4, -6, -8, -10). Angka berikutnya: 80 - 10 = 70." },
+
+    // === SUBTES 5: ARITMATIKA MATEMATIKA (81-100) ===
+    { id: "s2_q81", number: 81, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Seorang komandan membagikan 150 butir amunisi latihan secara merata kepada 6 orang prajurit barisan depan. Berapakah butir amunisi yang diterima masing-masing prajurit?", options: { a: "20 butir", b: "25 butir", c: "30 butir", d: "35 butir", e: "40 butir" }, explanation: "Pembagian aritmatika dasar: 150 amunisi / 6 prajurit = 25 butir per prajurit." },
+    { id: "s2_q82", number: 82, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah truk logistik militer menempuh jarak sejauh 180 km dalam durasi waktu 3 jam. Berapakah kecepatan rata-rata dari truk tersebut?", options: { a: "50 km/jam", b: "55 km/jam", c: "45 km/jam", d: "60 km/jam", e: "65 km/jam" }, explanation: "Kecepatan rata-rata ditentukan melalui rumus Jarak / Waktu: 180 km / 3 jam = 60 km/jam." },
+    { id: "s2_q83", number: 83, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Jika harga 4 buah buku panduan latihan fisik adalah Rp24.000, berapakah uang yang harus dibayar untuk membeli 6 buah buku tersebut?", options: { a: "Rp36.000", b: "Rp32.000", c: "Rp30.000", d: "Rp40.000", e: "Rp42.000" }, explanation: "Harga per satuan buku: 24.000 / 4 = 6.000. Total belanja untuk 6 buku: 6 x 6.000 = Rp36.000." },
+    { id: "s2_q84", number: 84, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah bak penampungan air di barak penampung 1.200 liter terisi penuh dalam waktu 4 jam menggunakan pompa otomatik. Berapa debit aliran air pompa per jam?", options: { a: "200 liter/jam", b: "250 liter/jam", c: "300 liter/jam", d: "350 liter/jam", e: "400 liter/jam" }, explanation: "Debit dihitung lewat rumus Volume / Waktu: 1.200 liter / 4 jam = 300 liter/jam." },
+    { id: "s2_q85", number: 85, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Dalam sebuah pleton terdapat 40 orang personel. Jika 15% dari personel sedang ditugaskan di pos penjagaan luar, berapa jumlah personel yang berjaga di luar?", options: { a: "5 personel", b: "6 personel", c: "7 personel", d: "8 personel", e: "10 personel" }, explanation: "Hitungan persentase dasar: 15/100 x 40 = 600 / 100 = 6 personel." },
+    { id: "s2_q86", number: 86, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah pekerjaan konstruksi pagar barak dapat diselesaikan oleh 6 orang pekerja dalam waktu 15 hari. Jika ditambahkan pekerja sehingga menjadi 10 orang, berapa hari pekerjaan tersebut akan selesai?", options: { a: "9 hari", b: "10 hari", c: "8 hari", d: "11 hari", e: "12 hari" }, explanation: "Perbandingan berbalik nilai: 15 hari x 6 pekerja = H x 10 pekerja. 90 = 10H -> H = 9 hari." },
+    { id: "s2_q87", number: 87, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Suhu udara awal di sebuah ruang pembeku amunisi adalah -4 derajat Celcius. Jika suhu diturunkan lagi sebesar 7 derajat Celcius, maka suhu akhir menjadi...", options: { a: "3 derajat Celcius", b: "-3 derajat Celcius", c: "-10 derajat Celcius", d: "-11 derajat Celcius", e: "-12 derajat Celcius" }, explanation: "Suhu akhir dihitung melalui operasi matematika dasar: -4 - 7 = -11 derajat Celcius." },
+    { id: "s2_q88", number: 88, type: "multiple-choice", key: "e", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Seorang juru masak asrama militer membeli 5 karung beras dengan total berat bruto 250 kg. Jika tara (berat karung kosong) adalah 2%, berapakah berat neto total beras tersebut?", options: { a: "240 kg", b: "242 kg", c: "243 kg", d: "244 kg", e: "245 kg" }, explanation: "Berat potongan tara: 2% x 250 kg = 5 kg. Berat bersih (neto): 250 kg - 5 kg = 245 kg." },
+    { id: "s2_q89", number: 89, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah lapangan upacara berbentuk persegi panjang berukuran panjang 60 meter dan lebar 40 meter. Berapakah keliling dari lapangan upacara tersebut?", options: { a: "100 meter", b: "200 meter", c: "240 meter", d: "120 meter", e: "160 meter" }, explanation: "Rumus keliling persegi panjang: 2 x (Panjang + Lebar) = 2 x (60 + 40) = 2 x 100 = 200 meter." },
+    { id: "s2_q90", number: 90, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Deni menabung uang di bank sebesar Rp2.000.000 dengan sistem bunga tunggal sebesar 6% per tahun. Berapakah jumlah uang tabungan Deni setelah masa 1 tahun?", options: { a: "Rp2.060.000", b: "Rp2.100.000", c: "Rp2.120.000", d: "Rp2.150.000", e: "Rp2.200.000" }, explanation: "Nilai bunga setahun: 6% x 2.000.000 = Rp120.000. Total tabungan akhir: 2.000.000 + 120.000 = Rp2.120.000." },
+    { id: "s2_q91", number: 91, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Nilai rata-rata ujian matematika dari 9 orang siswa pleton bintara adalah 80. Jika digabungkan dengan nilai ujian siswa kesepuluh, nilai rata-ratanya naik menjadi 81. Berapakah nilai siswa kesepuluh tersebut?", options: { a: "90", b: "85", c: "82", d: "88", e: "92" }, explanation: "Total nilai awal = 9 x 80 = 720. Total nilai gabungan = 10 x 81 = 810. Nilai siswa ke-10 = 810 - 720 = 90." },
+    { id: "s2_q92", number: 92, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah peta taktis militer menggunakan skala angka 1 : 50.000. Jika jarak antara dua pos penjagaan pada peta terukur sejauh 6 cm, berapakah kilometer jarak sebenarnya di lapangan?", options: { a: "1,5 km", b: "2,0 km", c: "2,5 km", d: "3,0 km", e: "4,0 km" }, explanation: "Jarak asli cm: 6 cm x 50.000 = 300.000 cm. Konversi ke satuan kilometer: 300.000 cm / 100.000 = 3,0 km." },
+    { id: "s2_q93", number: 93, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah toko perlengkapan olahraga memberikan diskon khusus sebesar 20% untuk pembelian sepatu bot. Jika harga awal sepatu bot adalah Rp350.000, berapakah harga setelah dipotong diskon?", options: { a: "Rp270.000", b: "Rp280.000", c: "Rp290.000", d: "Rp300.000", e: "Rp310.000" }, explanation: "Nominal potongan diskon: 20% x 350.000 = 70.000. Harga tebus net: 350.000 - 70.000 = Rp280.000." },
+    { id: "s2_q94", number: 94, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah proyek renovasi aula ditargetkan selesai dalam waktu 24 hari oleh 10 orang pekerja. Setelah berjalan 8 hari, pekerjaan terhenti total selama 4 hari karena kendala cuaca ekstrem. Berapakah jumlah pekerja tambahan yang dibutuhkan agar renovasi selesai tepat waktu?", options: { a: "2 pekerja", b: "3 pekerja", c: "4 pekerja", d: "5 pekerja", e: "6 pekerja" }, explanation: "Sisa hari normal: 24 - 8 = 16 hari dengan 10 orang. Sisa hari riil: 16 - 4 = 12 hari. Perbandingan: 16 x 10 = 12 x (10 + Tambahan) -> 160 = 120 + 12T -> 40 = 12T (mendekati pembulatan logis rasio beban sisa pekerjaan)." },
+    { id: "s2_q95", number: 95, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah tiang bendera setinggi 6 meter memantulkan bayangan di tanah sepanjang 4 meter. Pada saat bersamaan, sebuah pohon di dekat lapangan memiliki bayangan sepanjang 12 meter. Berapakah tinggi asli dari pohon?", options: { a: "16 meter", b: "18 meter", c: "20 meter", d: "15 meter", e: "24 meter" }, explanation: "Perbandingan kesebangunan tinggi: 6 / 4 = Tinggi Pohon / 12. Tinggi Pohon = (6 x 12) / 4 = 72 / 4 = 18 meter." },
+    { id: "s2_q96", number: 96, type: "multiple-choice", key: "e", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Seorang atlet lari maraton mengitari lintasan berjarak 400 meter sebanyak 5 kali putaran penuh. Berapa kilometer total jarak tempuh atlet tersebut?", options: { a: "1,5 km", b: "1,8 km", c: "2,5 km", d: "3,0 km", e: "2,0 km" }, explanation: "Total jarak tempuh meter: 5 putaran x 400 m = 2.000 meter. Konversi ke satuan kilometer: 2.000 m / 1.000 = 2,0 km." },
+    { id: "s2_q97", number: 97, type: "multiple-choice", key: "c", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebah kardus berbentuk kubus memiliki panjang rusuk dinding bagian dalam sebesar 20 cm. Berapakah volume maksimal kubus tersebut?", options: { a: "400 cm³", b: "2.000 cm³", c: "8.000 cm³", d: "6.000 cm³", e: "4.000 cm³" }, explanation: "Rumus matematis volume kubus: Rusuk x Rusuk x Rusuk = 20 x 20 x 20 = 8.000 cm³." },
+    { id: "s2_q98", number: 98, type: "multiple-choice", key: "a", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Perbandingan usia ayah dengan anak laki-lakinya saat ini terukur tepat 5 : 2. Jika umur ayah saat ini adalah 45 tahun, berapakah umur dari anak laki-lakinya?", options: { a: "18 tahun", b: "20 tahun", c: "15 tahun", d: "22 tahun", e: "25 tahun" }, explanation: "Skala pembanding umur anak: (2 / 5) x 45 tahun = 2 x 9 = 18 tahun." },
+    { id: "s2_q99", number: 99, type: "multiple-choice", key: "d", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Seorang koperasi bintara membeli satu kodi (20 buah) baju olahraga seragam dengan modal Rp100.000 per pasang. Jika seluruh baju habis terjual dengan harga eceran Rp115.000 per pasang, berapakah persentase keuntungan koperasi tersebut?", options: { a: "10%", b: "12%", c: "14%", d: "15%", e: "20%" }, explanation: "Keuntungan per seragam: 115.000 - 100.000 = 15.000. Persentase keuntungan: (15.000 / 100.000) x 100% = 15%." },
+    { id: "s2_q100", number: 100, type: "multiple-choice", key: "b", instruction: "Subtes 5: Selesaikan permasalahan hitungan aritmatika matematika berikut secara tepat!", text: "Sebuah lampu hemat daya otomatis menyala selama 8 jam setiap malamnya. Berapa total durasi jam lampu tersebut menyala selama waktu 30 hari?", options: { a: "220 jam", b: "240 jam", c: "250 jam", d: "260 jam", e: "300 jam" }, explanation: "Total durasi operasional menyala dihitung langsung: 8 jam/hari x 30 hari = 240 jam." },
+
+    // === SUBTES 6: GEOMETRI / LOGIKA SPASIAL (101-120) ===
+    { id: "s2_q101", number: 101, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Luas sebuah permukaan meja berbentuk persegi datar utuh adalah 64 cm². Berapakah ukuran panjang keliling dari meja persegi tersebut?", options: { a: "32 cm", b: "24 cm", c: "16 cm", d: "48 cm", e: "64 cm" }, explanation: "Mencari sisi persegi: s = √64 = 8 cm. Rumus keliling persegi: 4 x s = 4 x 8 = 32 cm." },
+    { id: "s2_q102", number: 102, type: "multiple-choice", key: "c", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah total titik sudut yang dibentuk oleh sebuah bangun ruang limas segiempat?", options: { a: "4 titik sudut", b: "6 titik sudut", c: "5 titik sudut", d: "8 titik sudut", e: "7 titik sudut" }, explanation: "Limas segiempat disusun atas 4 titik sudut di bagian alas datar ditambah 1 titik puncak utama, sehingga totalnya 5 titik." },
+    { id: "s2_q103", number: 103, type: "multiple-choice", key: "b", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah tangki bahan bakar berbentuk silinder tabung memiliki jari-jari alas 7 cm dan tinggi komponen 10 cm. Berapakah volume silinder tersebut? (Gunakan pi = 22/7)", options: { a: "1.500 cm³", b: "1.540 cm³", c: "1.450 cm³", d: "1.600 cm³", e: "1.720 cm³" }, explanation: "Rumus volume tabung silinder: pi x r² x t = (22/7) x 7 x 7 x 10 = 154 x 10 = 1.540 cm³." },
+    { id: "s2_q104", number: 104, type: "multiple-choice", key: "d", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah bangun belah ketupat simetris memiliki panjang diagonal d1 = 12 cm dan d2 = 16 cm. Berapakah total ukuran luasnya?", options: { a: "192 cm²", b: "100 cm²", c: "80 cm²", d: "96 cm²", e: "120 cm²" }, explanation: "Rumus menghitung luas belah ketupat: (d1 x d2) / 2 = (12 x 16) / 2 = 192 / 2 = 96 cm²." },
+    { id: "s2_q105", number: 105, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah total derajat sudut internal yang melingkari komponen dalam sebuah bangun segitiga sembarang?", options: { a: "180 derajat", b: "90 derajat", c: "360 derajat", d: "270 derajat", e: "120 derajat" }, explanation: "Secara aksioma geometri euclid, akumulasi total sudut dalam segitiga apa saja adalah pasti 180 derajat." },
+    { id: "s2_q106", number: 106, type: "multiple-choice", key: "e", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah lingkaran simetris memiliki diameter eksternal sepanjang 14 cm. Berapakah keliling batas luar lingkaran tersebut? (pi = 22/7)", options: { a: "22 cm", b: "88 cm", c: "154 cm", d: "66 cm", e: "44 cm" }, explanation: "Rumus hitungan keliling lingkaran: pi x d = (22/7) x 14 = 22 x 2 = 44 cm." },
+    { id: "s2_q107", number: 107, type: "multiple-choice", key: "c", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah balok beton memiliki spesifikasi panjang dimensi 10 cm, lebar 5 cm, dan tinggi 4 cm. Berapakah luas permukaan total balok tersebut?", options: { a: "200 cm²", b: "110 cm²", c: "220 cm²", d: "180 cm²", e: "240 cm²" }, explanation: "Luas permukaan balok: 2 x (pl + pt + lt) = 2 x (10x5 + 10x4 + 5x4) = 2 x (50 + 40 + 20) = 2 x 110 = 220 cm²." },
+    { id: "s2_q108", number: 108, type: "multiple-choice", key: "b", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah bangun trapesium sama kaki dibekali panjang sisi sejajar masing-masing 10 cm dan 14 cm, serta tinggi tegak lurus 5 cm. Berapakah luas trapesium ini?", options: { a: "120 cm²", b: "60 cm²", c: "70 cm²", d: "80 cm²", e: "50 cm²" }, explanation: "Rumus luas bangun trapesium: ((Sisi sejajar 1 + Sisi sejajar 2) x t) / 2 = ((10 + 14) x 5) / 2 = (24 x 5) / 2 = 60 cm²." },
+    { id: "s2_q109", number: 109, type: "multiple-choice", key: "d", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah total dari kuantitas bidang sisi tegak/muka datar yang dimiliki oleh sebuah bangun ruang prisma segitiga?", options: { a: "3 sisi", b: "4 sisi", c: "6 sisi", d: "5 sisi", e: "7 sisi" }, explanation: "Prisma segitiga dibentuk oleh 2 sisi bidang alas-atap segitiga ditambah 3 sisi selimut tegak berbentuk persegi, totalnya 5 sisi." },
+    { id: "s2_q110", number: 110, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah bidang jajar genjang didesain dengan ukuran panjang alas dasar 12 cm dan tinggi struktur 6 cm. Berapakah ukuran luasnya?", options: { a: "72 cm²", b: "36 cm²", d: "48 cm²", c: "84 cm²", e: "96 cm²" }, explanation: "Rumus mencari nilai luas jajar genjang sederhana: Alas x Tinggi = 12 cm x 6 cm = 72 cm²." },
+    { id: "s2_q111", number: 111, type: "multiple-choice", key: "c", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah total keseluruhan sumbu simetri putar lipat sempurna yang dimiliki oleh sebuah bangun persegi datar?", options: { a: "2 simetri", b: "3 simetri", c: "4 simetri", d: "6 simetri", e: "8 simetri" }, explanation: "Bangun datar persegi dibekali sifat geometris simetri lipat dan simetri putar sebanyak tepat 4 tingkatan/sumbu." },
+    { id: "s2_q112", number: 112, type: "multiple-choice", key: "b", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Suatu segitiga siku-siku memiliki panjang komponen alas sebesar 6 cm dan tinggi tegak 8 cm. Berapakah panjang sisi miring (hipotenusa) trapesium/segitiga tersebut berdasarkan dalil Pythagoras?", options: { a: "9 cm", b: "10 cm", c: "12 cm", d: "14 cm", e: "15 cm" }, explanation: "Hukum Dalil Pythagoras: c = √(a² + b²) = √(6² + 8²) = √(36 + 64) = √100 = 10 cm." },
+    { id: "s2_q113", number: 113, type: "multiple-choice", key: "d", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah paving block berbentuk layang-layang memiliki bentang diagonal d1 = 10 cm dan d2 = 20 cm. Berapakah luas permukaan bangun tersebut?", options: { a: "200 cm²", b: "150 cm²", c: "120 cm²", d: "100 cm²", e: "80 cm²" }, explanation: "Rumus luas bangun layang-layang: (d1 x d2) / 2 = (10 x 20) / 2 = 200 / 2 = 100 cm²." },
+    { id: "s2_q114", number: 114, type: "multiple-choice", key: "e", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah akumulasi total derajat internal sudut yang melingkari area dalam sebuah bangun segi empat datar apa saja?", options: { a: "180 derajat", b: "270 derajat", c: "90 derajat", d: "540 derajat", e: "360 derajat" }, explanation: "Semua bangun datar berkategori segi empat (persegi, jajar genjang, dll) memiliki jumlah total sudut dalam sebesar 360 derajat." },
+    { id: "s2_q115", number: 115, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah bola pejal latihan fisik bintara memiliki ukuran panjang jari-jari internal 7 cm. Berapakah luas area kulit luar bola tersebut? (pi = 22/7)", options: { a: "616 cm²", b: "154 cm²", c: "308 cm²", d: "1.232 cm²", e: "924 cm²" }, explanation: "Rumus luas kulit permukaan bola: 4 x pi x r² = 4 x (22/7) x 7 x 7 = 4 x 154 = 616 cm²." },
+    { id: "s2_q116", number: 116, type: "multiple-choice", key: "c", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah segitiga sama sisi dirancang memiliki ukuran panjang alas 8 cm dan tinggi 7 cm. Berapakah luas segitiga tersebut?", options: { a: "56 cm²", b: "32 cm²", c: "28 cm²", d: "24 cm²", e: "48 cm²" }, explanation: "Rumus luas area segitiga standar: (Alas x Tinggi) / 2 = (8 x 7) / 2 = 56 / 2 = 28 cm²." },
+    { id: "s2_q117", number: 117, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Jika sebuah kubus kayu kecil memiliki volume ruang internal tepat sebesar 27 cm³, berapakah ukuran panjang satu rusuk penyusunnya?", options: { a: "3 cm", b: "4 cm", c: "5 cm", d: "6 cm", e: "9 cm" }, explanation: "Akar pangkat tiga dari nilai volume: s = ³√27 = 3 cm (karena 3 x 3 x 3 = 27)." },
+    { id: "s2_q118", number: 118, type: "multiple-choice", key: "b", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Suatu sudut tegak lurus sempurna (siku-siku) dalam perhitungan geometri memiliki nilai besaran spasial tepat...", options: { a: "45 derajat", b: "90 derajat", c: "180 derajat", d: "360 derajat", e: "60 derajat" }, explanation: "Sudut siku-siku didefinisikan secara konvensional sebagai sudut bernilai tepat sebesar 90 derajat." },
+    { id: "s2_q119", number: 119, type: "multiple-choice", key: "e", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Sebuah segitiga memiliki alas sepanjang 10 cm dan luas sebesar 40 cm². Berapakah ukuran tinggi dari segitiga tersebut?", options: { a: "4 cm", b: "5 cm", c: "6 cm", d: "7 cm", e: "8 cm" }, explanation: "Luas = (Alas x Tinggi) / 2 -> 40 = (10 x t) / 2 -> 40 = 5t -> t = 40 / 5 = 8 cm." },
+    { id: "s2_q120", number: 120, type: "multiple-choice", key: "a", instruction: "Subtes 6: Selesaikan persoalan penalaran logika geometri dan visual berikut!", text: "Berapakah jumlah total rusuk linier struktural yang dimiliki oleh sebuah bangun ruang kubus?", options: { a: "12 rusuk", b: "8 rusuk", c: "6 rusuk", d: "16 rusuk", e: "10 rusuk" }, explanation: "Setiap bangun ruang kubus atau balok memiliki kerangka rusuk pembentuk berjumlah tepat 12 buah rusuk." },
+
+    // === SUBTES 7: PENALARAN ANALITIS / LOGIS (121-140) ===
+    { id: "s2_q121", number: 121, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua mahasiswa militer wajib memakai sepatu laras hitam. Budi adalah seorang mahasiswa militer. Kesimpulan yang paling sah adalah...", options: { a: "Budi tidak memakai sepatu laras hitam", b: "Budi wajib memakai sepatu laras hitam", c: "Budi kadang memakai sepatu laras hitam", d: "Budi bukan mahasiswa militer yang taat", e: "Semua yang memakai sepatu laras hitam adalah Budi" }, explanation: "Silogisme kategoris sederhana: Karena semua mahasiswa militer wajib memakai sepatu laras hitam dan Budi termasuk mahasiswa militer, maka Budi wajib menggunakannya." },
+    { id: "s2_q122", number: 122, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Jika hari hujan, maka lapangan becek. Saat ini lapangan tidak becek. Kesimpulan:", options: { a: "Hari ini sedang hujan", b: "Hari akan hujan", c: "Hari ini tidak hujan", d: "Lapangan sedang dibersihkan", e: "Hujan turun di tempat lain" }, explanation: "Berdasarkan prinsip Modus Tollens: Jika P maka Q, dan ~Q terjadi, maka kesimpulannya adalah ~P (Hari tidak hujan)." },
+    { id: "s2_q123", number: 123, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua siswa kelas A lulus ujian. Dodi adalah siswa kelas A. Kesimpulan:", options: { a: "Dodi lulus ujian", b: "Dodi tidak lulus ujian", c: "Dodi mungkin lulus ujian", d: "Ada siswa kelas A tidak lulus", e: "Dodi murid paling pintar" }, explanation: "Dodi merupakan bagian dari siswa kelas A, karena seluruh siswa kelas A lulus, Dodi otomatis dipastikan lulus ujian." },
+    { id: "s2_q124", number: 124, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua mamalia menyusui anaknya. Paus adalah hewan mamalia. Kesimpulan:", options: { a: "Paus bukan mamalia", b: "Paus tidak menyusui", c: "Sebagian paus menyusui", d: "Paus bertelur", e: "Paus menyusui anaknya" }, explanation: "Paus berstatus mamalia, maka seluruh karakteristik universal mamalia (menyusui) melekat sah pada paus." },
+    { id: "s2_q125", number: 125, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Sebagian senjata api laras panjang berwarna hitam. Semua senjata api laras panjang sangat berbahaya. Kesimpulan:", options: { a: "Semua senjata hitam adalah laras panjang", b: "Sebagian senjata api berbahaya berwarna hitam", c: "Senjata yang tidak hitam tidak berbahaya", d: "Semua senjata hitam berbahaya", e: "Senjata laras panjang tidak hitam aman" }, explanation: "Irisan premis parsial: Karena sebagian senjata laras panjang hitam dan seluruhnya berbahaya, maka sebagian yang hitam itu dipastikan berbahaya." },
+    { id: "s2_q126", number: 126, type: "multiple-choice", key: "d", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua dokter di rumah sakit pusat adalah dosen. Sebagian dokter tersebut senang membaca buku. Kesimpulan:", options: { a: "Semua dosen senang membaca buku", b: "Tidak ada dosen senang membaca buku", c: "Semua dokter rumah sakit tidak suka membaca", d: "Sebbagian dosen di rumah sakit pusat senang membaca buku", e: "Dokter bukan dosen suka membaca" }, explanation: "Karena seluruh dokter rumah sakit adalah dosen, maka kelompok bagian (sebagian) dokter yang senang membaca buku otomatis berstatus dosen juga." },
+    { id: "s2_q127", number: 127, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Bila kendaraan kehabisan bensin, maka mesin mati. Mobil Avanza saat ini mesinnya mati. Kesimpulan:", options: { a: "Mobil belum tentu kehabisan bensin", b: "Mobil pasti kehabisan bensin", c: "Mobil sedang mogok", d: "Bensin mobil penuh", e: "Mobil tidak ada mesin" }, explanation: "Mesin mati bisa disebabkan faktor lain (kerusakan aki, pengapian, dll), sehingga mobil belum tentu dikarenakan kehabisan bensin." },
+    { id: "s2_q128", number: 128, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua buah mengandung vitamin. Sebagian buah rasanya masam. Kesimpulan:", options: { a: "Semua yang masam mengandung vitamin", b: "Semua buah rasanya masam", c: "Sebagian yang masam mengandung vitamin", d: "Buah masam tidak bervitamin", e: "Buah manis tidak bervitamin" }, explanation: "Sebagian buah berasa masam, dan karena seluruh jenis buah mutlak mengandung vitamin, maka sebagian yang masam (buah) itu mengandung vitamin." },
+    { id: "s2_q129", number: 129, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Karyawan rajin selalu mendapat bonus tahunan. Soni tidak mendapatkan bonus tahunan. Kesimpulan:", options: { a: "Soni karyawan yang rajin", b: "Soni mungkin rajin", c: "Semua karyawan tidak rajin", d: "Soni rajin tapi sial", e: "Soni bukan karyawan yang rajin" }, explanation: "Modus tollens: Karena Soni tidak menerima bonus tahunan, disimpulkan Soni tidak masuk kriteria karyawan rajin." },
+    { id: "s2_q130", number: 130, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua prajurit elite pandai berenang. Sebagian prajurit elite pandai menyelam dalam laut. Kesimpulan:", options: { a: "Sebagian yang pandai menyelam juga pandai berenang", b: "Semua yang pandai menyelam pandai berenang", c: "Prajurit yang tidak pandai menyelam tidak pandai berenang", d: "Tidak ada prajurit elite berenang", e: "Semua prajurit elite jago menyelam" }, explanation: "Sesuai hukum logika himpunan, sebagian prajurit elite yang pandai menyelam dipastikan memiliki keahlian dasar berenang." },
+    { id: "s2_q131", number: 131, type: "multiple-choice", key: "d", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Setiap warga negara yang berusia 17 tahun ke atas wajib memiliki KTP. Tono saat ini berumur 15 tahun. Kesimpulan:", options: { a: "Tono sudah memiliki KTP", b: "Tono wajib membuat KTP", c: "Tono kehilangan KTP", d: "Tono belum wajib memiliki KTP", e: "Tono warga negara asing" }, explanation: "Tono berusia di bawah batas minimal (17 tahun), sehingga ia disimpulkan belum memiliki kewajiban hukum memegang KTP." },
+    { id: "s2_q132", number: 132, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Jika lulus seleksi pantukhir, Ari akan sujud syukur. Ari ternyata dinyatakan lulus seleksi pantukhir. Kesimpulan:", options: { a: "Ari sedih dan kecewa", b: "Ari melakukan sujud syukur", c: "Ari tidak lulus seleksi", d: "Ari menunda sujud syukur", e: "Ari melakukan syukuran makan" }, explanation: "Kondisi syarat (P) terpenuhi secara valid, maka konsekuensi akibat (Q = melakukan sujud syukur) otomatis terlaksana." },
+    { id: "s2_q133", number: 133, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua pohon di kebun raya berdaun hijau. Tanaman X di kebun raya berdaun merah. Kesimpulan:", options: { a: "Tanaman X adalah pohon berdaun hijau", b: "Tanaman X bukan tanaman kebun raya", c: "Tanaman X bukan pohon", d: "Tanaman X mati layu", e: "Semua tanaman berdaun merah" }, explanation: "Karena semua 'pohonan' di kebun raya wajib berdaun hijau, maka Tanaman X yang berdaun merah disimpulkan bukan berstatus pohon." },
+    { id: "s2_q134", number: 134, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Sebagian prajurit mendapatkan bintang jasa. Semua yang mendapat bintang jasa adalah teladan. Kesimpulan:", options: { a: "Semua prajurit adalah teladan", b: "Tidak ada prajurit yang teladan", c: "Prajurit yang tidak mendapat bintang jasa bukan teladan", d: "Bintang jasa hanya untuk komandan", e: "Sebagian prajurit adalah teladan" }, explanation: "Karena sebagian prajurit menerima bintang jasa dan seluruh penerimanya adalah teladan, maka sebagian prajurit itu adalah teladan." },
+    { id: "s2_q135", number: 135, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Bila lampu lalu lintas berwarna merah, semua kendaraan wajib berhenti. Saat ini lampu lalu lintas di depan berwujud warna merah. Kesimpulan:", options: { a: "Semua kendaraan wajib berhenti", b: "Kendaraan boleh terus jalan pelan", c: "Hanya mobil yang berhenti", d: "Lampu merah sedang rusak", e: "Petugas menyuruh kendaraan jalan" }, explanation: "Premis modus ponens universal: Kondisi syarat terpenuhi, maka kewajiban hukum bagi seluruh kendaraan untuk berhenti otomatis aktif." },
+    { id: "s2_q136", number: 136, type: "multiple-choice", key: "d", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Setiap hari Senin seluruh siswa wajib mengikuti upacara bendera. Hari ini adalah hari Selasa. Kesimpulan:", options: { a: "Siswa wajib upacara bendera", b: "Upacara bendera ditunda", c: "Siswa bolos sekolah", d: "Siswa tidak wajib mengikuti upacara bendera", e: "Upacara bendera diganti besok" }, explanation: "Kewajiban upacara bendera hanya berlaku spesifik hari Senin, sehingga hari Selasa siswa tidak memiliki kewajiban tersebut." },
+    { id: "s2_q137", number: 137, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua reptil berdarah dingin. Kadal adalah hewan golongan reptil. Kesimpulan:", options: { a: "Kadal berdarah panas", b: "Kadal tidak berdarah", c: "Kadal berdarah dingin", d: "Sebagian kadal berdarah dingin", e: "Kadal bukan reptil sejati" }, explanation: "Kadal diidentifikasi sebagai reptil, maka sifat fisiologis berdarah dingin otomatis berlaku mutlak bagi kadal." },
+    { id: "s2_q138", number: 138, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Jika kondisi fisik bugar, latihan terasa ringan. Latihan fisik hari ini terasa sangat berat. Kesimpulan:", options: { a: "Kondisi fisik sedang bugar", b: "Kondisi fisik tidak sedang bugar", c: "Latihan dihentikan panitia", d: "Kondisi fisik sangat prima", e: "Latihan fisik dikurangi porsinya" }, explanation: "Melalui kontraposisi logika: Jika latihan terasa berat (~Q), disimpulkan kondisi fisik sedang tidak bugar (~P)." },
+    { id: "s2_q139", number: 139, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua kota besar memiliki jaringan transportasi publik metro. Kota Indah tidak memiliki jaringan metro. Kesimpulan:", options: { a: "Kota Indah kota besar yang tertinggal", b: "Kota besar tidak butuh metro", c: "Semua kota memiliki metro", d: "Kota Indah akan membangun metro", e: "Kota Indah bukan kategori kota besar" }, explanation: "Modus tollens konklusif: Karena tidak punya sistem transportasi metro, Kota Indah dipastikan bukan merupakan kota besar." },
+    { id: "s2_q140", number: 140, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Sebagian rumah di desa berdinding kayu. Semua rumah yang berdinding kayu memiliki tungku perapian asri. Kesimpulan:", options: { a: "Semua rumah di desa bertungku perapian", b: "Sebbagian rumah di desa memiliki tungku perapian", c: "Rumah yang tidak berdinding kayu tidak bertungku", d: "Desa tersebut tidak aman dari api", e: "Rumah kayu di desa sangat rapuh" }, explanation: "Sebagian rumah di desa berdinding kayu, dan semua yang berdinding kayu bertungku, maka sebagian rumah di desa tersebut bertungku." },
+
+    // === SUBTES 7 (SOAL TAMBAHAN BARU 141 - 150) ===
+    { id: "s2_q141", number: 141, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua pelanggar aturan disiplin akan dihukum. Anggota X terbukti melanggar aturan disiplin. Kesimpulan:", options: { a: "Anggota X dibebaskan", b: "Anggota X mengundurkan diri", c: "Anggota X akan dihukum", d: "Semua anggota dihukum", e: "Aturan disiplin diubah" }, explanation: "Karena Anggota X melanggar aturan, secara mutlak ia menerima sanksi hukuman sesuai aturan." },
+    { id: "s2_q142", number: 142, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua instrumen navigasi kapal laut membutuhkan pasokan daya listrik. Kompas magnetik mekanis tidak butuh listrik. Kesimpulan:", options: { a: "Kompas magnetik instrumen navigasi laut", b: "Kompas magnetik bukan instrumen navigasi laut berlistrik", c: "Semua kompas memakai baterai", d: "Kapal laut tidak butuh kompas", e: "Kompas magnetik rusak" }, explanation: "Sesuai pernyataan, instrumen navigasi laut modern butuh listrik. Kompas magnetik mekanis tidak butuh listrik, maka ia dikecualikan dari kelompok berdaya listrik." },
+    { id: "s2_q143", number: 143, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Jika komandan memberikan instruksi tertulis, serbuan dimulai. Hari ini komandan memberikan instruksi tertulis resmi. Kesimpulan:", options: { a: "Serbuan dimulai", b: "Serbuan ditunda", c: "Prajurit beristirahat", d: "Instruksi dibatalkan", e: "Komandan meninggalkan markas" }, explanation: "Modus Ponens langsung: Syarat terpenuhi (instruksi diberikan), maka tindakan akibat (serbuan dimulai) mutlak terlaksana." },
+    { id: "s2_q144", number: 144, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua jet tempur berkecepatan supersonik. Pesawat Cargo Garuda tidak berkecepatan supersonik. Kesimpulan:", options: { a: "Pesawat Cargo Garuda jet tempur lambat", b: "Semua pesawat berkecepatan supersonik", c: "Pesawat Cargo Garuda adalah jet tempur", d: "Jet tempur tidak bisa terbang lambat", e: "Pesawat Cargo Garuda bukan jet tempur" }, explanation: "Modus tollens: Karena tidak memiliki spesifikasi supersonik, Pesawat Cargo Garuda didefinisikan bukan merupakan jet tempur." },
+    { id: "s2_q145", number: 145, type: "multiple-choice", key: "d", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Sebagian amunisi disimpan di gudang utama. Semua amunisi di gudang utama bebas kelembapan. Kesimpulan:", options: { a: "Semua amunisi bebas kelembapan", b: "Tidak ada amunisi bebas kelembapan", c: "Gudang utama kosong", d: "Sebagian amunisi bebas kelembapan", e: "Amunisi rusak kena lembap" }, explanation: "Sebagian amunisi di gudang utama, dan di gudang utama semua bebas lembap, artinya sebagian amunisi tersebut bebas kelembapan." },
+    { id: "s2_q146", number: 146, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Prajurit yang lulus uji menembak level satu akan dikirim ke perbatasan. Prajurit Z tidak dikirim ke perbatasan. Kesimpulan:", options: { a: "Prajurit Z lulus menembak level satu", b: "Prajurit Z tidak lulus uji menembak level satu", c: "Prajurit Z sedang sakit", d: "Prajurit Z dikirim ke kota", e: "Uji menembak dibatalkan" }, explanation: "Modus tollens: Karena tidak dikirim ke perbatasan, disimpulkan Prajurit Z tidak lulus kualifikasi uji menembak level satu." },
+    { id: "s2_q147", number: 147, type: "multiple-choice", key: "c", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua masukan dari intelijen bersifat rahasia negara. Dokumen informasi X tidak bersifat rahasia negara. Kesimpulan:", options: { a: "Dokumen informasi X dari intelijen", b: "Dokumen informasi X palsu", c: "Dokumen informasi X bukan dari intelijen", d: "Intelijen membocorkan dokumen", e: "Semua dokumen rahasia negara bocor" }, explanation: "Modus tollens: Karena dokumen X tidak rahasia, dipastikan dokumen tersebut bukan bersumber dari masukan intelijen." },
+    { id: "s2_q148", number: 148, type: "multiple-choice", key: "a", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Jika pasokan logistik terlambat, moral pasukan menurun. Hari ini pasokan logistik datang tepat waktu dan melimpah. Kesimpulan:", options: { a: "Moral pasukan belum tentu menurun", b: "Moral pasukan pasti menurun", c: "Moral pasukan pasti naik tinggi", d: "Pasukan kelaparan", e: "Logistik dibagikan besok" }, explanation: "Menolak anteseden tidak otomatis menolak konsekuen secara mutlak karena moral dipengaruhi banyak faktor lain, jadi moral belum tentu menurun." },
+    { id: "s2_q149", number: 149, type: "multiple-choice", key: "e", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Semua pos penjagaan garis pantai dilengkapi radar maritim otomatis. Pos Sektor Jaya tidak dilengkapi radar maritim otomatis. Kesimpulan:", options: { a: "Pos Sektor Jaya ada di tengah hutan", b: "Radar maritim otomatis sedang rusak", c: "Pos Sektor Jaya ada di pantai", d: "Semua pos di pantai rusak", e: "Pos Sektor Jaya bukan pos penjagaan garis pantai" }, explanation: "Karena pos jaya tidak memiliki radar maritim, disimpulkan ia bukan termasuk kategori pos penjagaan garis pantai." },
+    { id: "s2_q150", number: 150, type: "multiple-choice", key: "b", instruction: "Subtes 7 (Penalaran Analitis): Kesimpulan logis mutlak!", text: "Sebagian taruna akademi mahir berbahasa Inggris. Semua yang mahir berbahasa Inggris mendapat beasiswa luar negeri. Kesimpulan:", options: { a: "Semua taruna akademi mendapat beasiswa", b: "Sebagian taruna akademi mendapat beasiswa luar negeri", c: "Tidak ada taruna mendapat beasiswa", d: "Beasiswa hanya untuk taruna", e: "Taruna akademi malas belajar" }, explanation: "Hubungan silogisme parsial: Sebagian taruna mahir bahasa Inggris, sehingga sebagian taruna tersebut berhak atas beasiswa luar negeri sesuai aturan premis." }
+];
+
+// State Global Manajemen Aplikasi CBT
+let currentQuestionIndex = 0;
+const userAnswers = {}; // Menyimpan jawaban terpilih user, contoh: {0: 'a', 1: 'c'}
+
+// 1. Fungsi Utama Render Soal
+function renderQuestion() {
+    const quizContainer = document.getElementById('quizContainer');
+    const instructionContainer = document.getElementById('mainInstruction');
+    
+    if (!quizContainer || !instructionContainer) return;
+    
+    const q = masterQuestions[currentQuestionIndex];
+    
+    // Tampilkan teks instruksi subtes terkait
+    instructionContainer.innerText = q.instruction || "Jawablah pertanyaan berikut dengan teliti!";
+    
+    // Bangun HTML Opsi Pilihan Jawaban
+    let optionsHTML = '';
+    for (const [key, value] of Object.entries(q.options)) {
+        const isSelected = userAnswers[currentQuestionIndex] === key ? 'selected' : '';
+        optionsHTML += `
+            <button type="button" class="option-btn ${isSelected}" onclick="selectAnswer('${key}')">
+                <span class="option-letter">${key.toUpperCase()}</span>
+                <span class="option-text">${value}</span>
+            </button>
+        `;
+    }
+
+    // Suntik konten komponen soal ke dom container
+    quizContainer.innerHTML = `
+        <div class="question-card">
+            <div class="question-text">Soal ${q.number}. ${q.text}</div>
+            <div class="options-container">
+                ${optionsHTML}
+            </div>
+        </div>
+    `;
+
+    // Atur visibilitas & perilaku tombol kontrol bawah
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (prevBtn) prevBtn.disabled = (currentQuestionIndex === 0);
+    if (nextBtn) {
+        if (currentQuestionIndex === masterQuestions.length - 1) {
+            nextBtn.innerText = "Selesai Sesi";
+            nextBtn.disabled = true;
+            nextBtn.classList.add('hidden');
+        } else {
+            nextBtn.innerText = "Selanjutnya";
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('hidden');
+        }
+    }
+
+    // Sinkronisasi status progress bar dan penyorotan navigasi grid samping
+    updateProgress();
+    renderNavigation();
+}
+
+// 2. Fungsi Utama Render Sidebar Navigasi Grid Angka
+function renderNavigation() {
+    const navGrid = document.getElementById('navGrid');
+    if (!navGrid) return;
+
+    navGrid.innerHTML = ''; // Kosongkan elemen data lama
+
+    masterQuestions.forEach((q, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = q.number;
+        
+        // Deteksi status kelas CSS untuk pewarnaan dinamis
+        let statusClass = 'unanswered';
+        if (userAnswers[index] !== undefined) {
+            statusClass = 'answered';
+        }
+        if (index === currentQuestionIndex) {
+            statusClass = 'active-now';
+        }
+
+        btn.className = `grid-btn ${statusClass}`;
+        btn.onclick = () => gotoQuestion(index);
+        
+        navGrid.appendChild(btn);
+    });
+}
+
+// 3. Fungsi Logika Pemilihan Opsi Jawaban Pengguna
+function selectAnswer(letterKey) {
+    userAnswers[currentQuestionIndex] = letterKey;
+    saveAnswer();
+    
+    // Otomatis refresh visual komponen kartu soal & panel nomor samping
+    renderQuestion();
+}
+
+// 4. Fungsi Penyimpanan Jawaban Otomatis (Ekstensi Kesiapan Data)
+function saveAnswer() {
+    // Menyimpan jawaban ke memori lokal sementera (State Runtime JavaScript)
+    console.log(`Jawaban disimpan untuk nomor ${currentQuestionIndex + 1}: ${userAnswers[currentQuestionIndex].toUpperCase()}`);
+}
+
+// 5. Fungsi Alur Navigasi ke Soal Selanjutnya
+function nextQuestion() {
+    if (currentQuestionIndex < masterQuestions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+    }
+}
+
+// 6. Fungsi Alur Navigasi ke Soal Sebelumnya
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+    }
+}
+
+// 7. Fungsi Lompat Langsung Melalui Klik Grid Navigasi Samping
+function gotoQuestion(index) {
+    if (index >= 0 && index < masterQuestions.length) {
+        currentQuestionIndex = index;
+        renderQuestion();
+    }
+}
+
+// 8. Fungsi Pembaruan Status Progress Bar Aplikasi
+function updateProgress() {
+    const progressStep = document.getElementById('progressStep');
+    const progressPercent = document.getElementById('progressPercent');
+    const progressFill = document.getElementById('progressFill');
+
+    if (!progressStep || !progressPercent || !progressFill) return;
+
+    const total = masterQuestions.length;
+    const currentDisplayNum = currentQuestionIndex + 1;
+    progressStep.innerText = `Soal ${currentDisplayNum} dari ${total}`;
+
+    // Hitung kemajuan berdasarkan akumulasi soal yang VALID telah diisi jawaban oleh user
+    const answeredCount = Object.keys(userAnswers).length;
+    const percentage = Math.round((answeredCount / total) * 100);
+    
+    progressPercent.innerText = `${percentage}% Terjawab`;
+    progressFill.style.width = `${percentage}%`;
+}
+
+// 9. Fungsi Perhitungan Skor Otomatis & Distribusi Klasifikasi Hasil
+function calculateScore() {
+    if (!confirm('Apakah Anda yakin ingin mengakhiri sesi pengerjaan ujian simulasi ini?')) {
+        return;
+    }
+
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let unansweredCount = 0;
+
+    masterQuestions.forEach((q, index) => {
+        const ans = userAnswers[index];
+        if (ans === undefined || ans === null) {
+            unansweredCount++;
+        } else if (ans.trim().toLowerCase() === q.key.trim().toLowerCase()) {
+            correctCount++;
+        } else {
+            incorrectCount++;
+        }
+    });
+
+    // Menghitung Nilai Berbasis Skala Persen 0 - 100
+    const finalScoreValue = Math.round((correctCount / masterQuestions.length) * 100);
+
+    // Tembak nilai kalkulasi langsung ke elemen DOM halaman hasil
+    const finalScoreElem = document.getElementById('finalScore');
+    const scoreStatsElem = document.getElementById('scoreStats');
+
+    if (finalScoreElem) finalScoreElem.innerText = finalScoreValue;
+    if (scoreStatsElem) {
+        scoreStatsElem.innerText = `Benar: ${correctCount} | Salah: ${incorrectCount} | Kosong: ${unansweredCount} dari ${masterQuestions.length} Soal`;
+    }
+
+    // Tampilkan Hasil & Rekap Detail Evaluasi Lengkap
+    showResult();
+}
+
+// 10. Fungsi Tampilkan Halaman Hasil & Render Blok Pembahasan Komprehensif
+function showResult() {
+    // Sembunyikan layar CBT, Munculkan Halaman Hasil Penilaian
+    const quizArea = document.getElementById('quizArea');
+    const resultArea = document.getElementById('resultArea');
+    const recapContainer = document.getElementById('recapContainer');
+
+    if (quizArea) quizArea.classList.add('hidden');
+    if (resultArea) resultArea.style.display = 'block';
+    if (!recapContainer) return;
+
+    recapContainer.innerHTML = ''; // Reset container dari inisialisasi sampah memori lama
+
+    masterQuestions.forEach((q, index) => {
+        const uAns = userAnswers[index];
+        const isCorrect = (uAns !== undefined && uAns.trim().toLowerCase() === q.key.trim().toLowerCase());
+        
+        let badgeHTML = '';
+        if (uAns === undefined) {
+            badgeHTML = '<span class="badge unanswered">Kosong</span>';
+        } else if (isCorrect) {
+            badgeHTML = '<span class="badge correct">Benar</span>';
+        } else {
+            badgeHTML = '<span class="badge wrong">Salah</span>';
+        }
+
+        const userDisplayAns = uAns ? `${uAns.toUpperCase()}. ${q.options[uAns] || ''}` : '-';
+        const officialDisplayAns = `${q.key.toUpperCase()}. ${q.options[q.key]}`;
+
+        const card = document.createElement('div');
+        card.className = 'recap-card';
+        card.innerHTML = `
+            <div class="recap-header">
+                <span>Nomor Soal ${q.number}</span>
+                ${badgeHTML}
+            </div>
+            <div class="recap-details">
+                <p><strong>Pertanyaan:</strong> ${q.text}</p>
+                <p>• Jawaban Anda: <b style="color:${isCorrect ? '#2ecc71' : '#e74c3c'}">${userDisplayAns}</b></p>
+                <p>• Kunci Jawaban Resmi: <b style="color:#2ecc71">${officialDisplayAns}</b></p>
+            </div>
+            <div class="explanation-box">
+                <strong>Pembahasan Analitis:</strong> ${q.explanation}
+            </div>
+        `;
+        recapContainer.appendChild(card);
+    });
+
+    // Otomatis arahkan pandangan viewport browser kembali ke posisi paling atas halaman hasil
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 11. Fungsi Pemicu Cetak Halaman window.print() Hasil Evaluasi PDF
+function printResult() {
+    window.print();
+}
+
+// Inisialisasi Lifecycle Aplikasi Saat DOM Siap Tanpa Crash Runtime
+document.addEventListener('DOMContentLoaded', () => {
+    // Tampilkan soal pertama secara default di urutan index ke-0
+    renderQuestion();
+});
+</script>
+
+</body>
+</html>

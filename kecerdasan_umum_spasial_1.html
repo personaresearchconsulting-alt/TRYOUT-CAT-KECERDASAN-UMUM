@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TES KECERDASAN SPASIAL (HOTS) - Persona Research</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #f4f6f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 25px; border-bottom: 3px solid #e67e22; padding-bottom: 15px; }
+        .header h1 { margin: 0; color: #2c3e50; font-size: 24px; }
+        .header p { margin: 5px 0 0 0; color: #7f8c8d; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .instruction-card { background: #fff9f2; padding: 15px; border-left: 5px solid #e67e22; margin-bottom: 20px; border-radius: 4px; font-style: italic; font-weight: bold; }
+        .question-card { margin-bottom: 20px; display: none; }
+        .question-card.active { display: block; }
+        .question-text { font-size: 17px; font-weight: bold; margin-bottom: 15px; line-height: 1.5; color: #2c3e50; }
+        .options-container { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { padding: 12px 20px; background: #fff; border: 2px solid #cbd5e1; border-radius: 6px; text-align: left; font-size: 15px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .option-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .option-btn.selected { background: #e67e22; color: #fff; border-color: #d35400; }
+        
+        /* Navigasi Utama & Grid Angka Bawah */
+        .nav-btn { padding: 12px 25px; background: #2c3e50; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .nav-btn:hover { background: #1a252f; }
+        .grid-navigation { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 25px; padding-top: 20px; border-top: 1px dashed #cbd5e1; }
+        .nav-num-btn { width: 35px; height: 35px; background: #e2e8f0; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .nav-num-btn.active { border: 2px solid #2c3e50; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
+        .nav-num-btn.filled { background: #ffbe76; color: #2c3e50; border-color: #f0932b; }
+
+        .progress-container { margin-bottom: 20px; }
+        .progress-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; }
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2ecc71; width: 0%; transition: width 0.3s; }
+        
+        /* Result & Compact Grid Pembahasan */
+        .result-section { display: none; }
+        .score-box { text-align: center; background: #2c3e50; color: white; padding: 25px; border-radius: 8px; margin-bottom: 25px; }
+        .score-num { font-size: 54px; font-weight: bold; margin: 10px 0; color: #e67e22; }
+        .btn-pdf { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; text-decoration: none; display: inline-block; }
+        .btn-pdf:hover { background: #c0392b; }
+        
+        .recap-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+        .recap-header { font-size: 14px; font-weight: bold; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .explanation-box { background: #edf2f7; padding: 10px; border-left: 4px solid #e67e22; margin-top: 6px; font-size: 13px; line-height: 1.4; color: #2d3748; }
+        .svg-option-wrapper { display: flex; align-items: center; justify-content: center; background: #f8fafc; padding: 6px; border-radius: 4px; border: 1px dashed #cbd5e1; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>TRYOUT KHUSUS KECERDASAN SPASIAL (LEVEL HOTS)</h1>
+        <p>Persona Research & Consulting</p>
+    </div>
+
+    <div id="quizArea">
+        <div class="progress-container">
+            <div class="progress-text">
+                <span id="progressStep">Soal 1 dari ...</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        
+        <div id="mainInstruction" class="instruction-card">Memuat Instruksi...</div>
+        <div id="quizContainer"></div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <button id="prevBtn" class="nav-btn" onclick="changeQuestion(-1)">Sebelumnya</button>
+            <button id="nextBtn" class="nav-btn" onclick="changeQuestion(1)">Selanjutnya</button>
+            <button id="submitBtn" class="nav-btn" onclick="submitAnswers()" style="display:none; background:#2ecc71;">Selesai & Lihat Hasil</button>
+        </div>
+
+        <div class="grid-navigation" id="gridNavigation"></div>
+    </div>
+
+    <div id="resultArea" class="result-section">
+        <div class="score-box">
+            <h3>Hasil Evaluasi Kompetensi Spasial</h3>
+            <div class="score-num" id="finalScore">0</div>
+            <p id="scoreStats">Benar: 0 | Salah: 0</p>
+            <button class="btn-pdf" onclick="window.print()">🖨️ Cetak / Download Hasil PDF</button>
+        </div>
+        
+        <h2>Pembahasan Analitik (Metode Guru Mengajar)</h2>
+        <div id="recapContainer"></div>
+    </div>
+</div>
+
+<script>
+const masterQuestions = [
+    // === SUBTES 7: POTONGAN BIDANG / FIGURE ASSEMBLY (117-126) ===
+    {
+        id: "q_1",
+        number: 1,
+        type: "multiple-choice",
+        key: "d",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Pecahan geometri berikut digabungkan secara presisi tanpa tumpang tindih. Bentuk utuh manakah yang dihasilkan?",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="200" height="80" viewBox="0 0 200 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="10,60 50,60 50,20" fill="none" stroke="#333" stroke-width="2"/>
+            <rect x="70" y="20" width="30" height="40" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="120,60 160,60 120,20" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="15" y="20" width="50" height="40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,20 70,20 50,60 30,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="20,20 60,20 60,60 20,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,60 70,60 50,20 30,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,60 70,60 40,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Mari kita bedah bersama, Anak-anak:</b> Perhatikan komponennya! Kita punya satu persegi panjang tegak di tengah, lalu diapit oleh dua buah segitiga siku-siku di kiri dan kanan. Jika kedua segitiga miring tersebut ditempelkan di kedua sisi persegi panjang, sisi bawahnya akan melebar sedangkan sisi atasnya tetap landai. Komposisi ini secara otomatis membentuk bangun <b>Trapesium Sama Kaki</b> yang simetris. Jadi, jawaban paling tepat melambangkan bentuk ini adalah pilihan <b>D</b>."
+    },
+    {
+        id: "q_2",
+        number: 2,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Gabungkan potongan komponen di bawah ini secara mental untuk menemukan bentuk geometri utuh yang paling tepat!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="200" height="80" viewBox="0 0 200 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="20,20 50,20 20,50" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="70,20 100,20 100,50" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="120,50 150,50 120,20" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="160,50 190,50 190,20" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,60 65,60 40,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="40,15 65,40 40,65 15,40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,20 65,20 50,60 30,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="20,15 60,15 60,45 20,45" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Penjelasan Guru:</b> Nah, di soal ini kita diuji dengan 4 buah segitiga siku-siku sama kaki yang berukuran identik. Jika keempat sudut siku-siku dari masing-masing segitiga tersebut kita satukan dan hadapkan ke titik pusat simetri, maka garis-garis miring terluarnya akan berpadu tegak lurus membentuk tepi luar. Hasil rekonstruksi total ini membentuk satu <b>Bentuk Kotak Persegi Sempurna</b>. Maka jawaban yang sahih adalah <b>B</b>."
+    },
+    {
+        id: "q_3",
+        number: 3,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Gabungkan bagian-bagian melengkung berikut ini menjadi satu kesatuan objek lingkaran!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <path d="M 20,50 A 25,25 0 0,1 70,50" fill="none" stroke="#333" stroke-width="2"/>
+            <path d="M 100,50 A 25,25 0 0,1 150,50" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><circle cx="40" cy="40" r="25" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><path d="M 15,40 A 25,15 0 0,1 65,40 Z" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><path d="M 40,15 A 20,20 0 0,1 40,45 A 20,20 0 0,0 40,75" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><ellipse cx="40" cy="40" rx="30" ry="15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><circle cx="40" cy="40" r="15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Mari kita perhatikan baik-baik:</b> Soal ini menampilkan dua komponen kurva terbuka berbentuk setengah lingkaran yang identik. Jika salah satu busur diputar posisinya lalu direkatkan, dua lengkungan tersebut akan menutup rapat membentuk sebuah <b>Lingkaran Utuh</b>. Karenanya, opsi jawaban <b>A</b> adalah pilihan yang mutlak benar."
+    },
+    {
+        id: "q_4",
+        number: 4,
+        type: "multiple-choice",
+        key: "e",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Kombinasikan dua potongan geometri unik berikut untuk membentuk satu kesatuan datar!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="15,25 65,25 45,65 15,65" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="100,25 130,65 100,65" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,25 65,25 45,65 15,65" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,65 65,65 40,25" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,20 70,20 50,60 30,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,55 70,55 55,25 25,25" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,65 65,65 65,25 15,25" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Cara Mudah dari Guru:</b> Di layar tampak sebuah jajaran genjang condong ke kiri dan sebuah segitiga siku-siku. Coba bayangkan segitiga siku-siku itu digeser lalu ditempelkan ke sisi miring jajaran genjang yang berlekuk di ujung kanan. Sisi miring segitiga akan meluruskan kemiringan jajaran genjang sehingga sudutnya tegak menjadi 90 derajat membentuk sebuah <b>Persegi Panjang Standar</b>. Berarti, pilihan jawaban yang valid adalah <b>E</b>."
+    },
+    {
+        id: "q_5",
+        number: 5,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Susun tiga potong pola segitiga memanjang berikut menjadi satu objek geometri utuh teratur!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="200" height="80" viewBox="0 0 200 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="20,55 50,55 35,20" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="70,20 100,20 85,55" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="120,55 150,55 135,20" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="20" y="25" width="40" height="30" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,20 65,20 50,60 30,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,55 65,55 50,20 20,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,55 65,55 40,15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="40,15 65,40 40,65 15,40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Mari kita analisis secara mendalam:</b> Kita memiliki tiga buah segitiga sama sisi, dua menghadap ke atas dan satu menghadap ke bawah. Apabila potongan segitiga terbalik disisipkan di antara dua segitiga tegak, maka sisi-sisi miring mereka akan saling berimpit tanpa celah membentuk bangun <b>Jajaran Genjang</b>. Jadi, kode opsi yang tepat adalah <b>C</b>."
+    },
+    {
+        id: "q_6",
+        number: 6,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Dua komponen trapesium siku-siku ini jika dirapatkan di bagian tengah akan membentuk bangun datar apa?",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="20,20 60,20 40,55 20,55" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="100,20 140,20 140,55 120,55" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,20 65,20 50,55 30,55" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="20,15 60,15 40,55 20,55" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,55 65,55 40,15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="40,15 65,40 40,65 15,40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Bimbingan Guru:</b> Perhatikan orientasi kedua potongan trapesium siku-siku ini. Jika kita geser saling mendekat hingga bagian sisi tegak lurusnya bertemu di sumbu simetri tengah, maka gabungan bagian atas dan bawahnya akan menyatu membentuk satu <b>Jajaran Genjang Baru</b> yang simetris. Jawaban yang tepat ialah pilihan <b>A</b>."
+    },
+    {
+        id: "q_7",
+        number: 7,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Satukan potongan persegi dan segitiga ini untuk memperoleh hasil penutupan bidang yang paling tepat!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <rect x="20" y="30" width="30" height="30" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="70,60 100,60 100,30" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="120,60 150,60 120,30" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="15" y="20" width="50" height="40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,60 65,60 40,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,20 70,20 50,60 30,60" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><circle cx="40" cy="40" r="20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,60 65,60 55,20 25,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Pola Pikir Kreatif:</b> Di sini ada satu buah persegi dan dua buah segitiga siku-siku penutup. Jika dua buah segitiga siku-siku itu digabungkan pada sisi tegaknya dan ditempelkan tepat di atas atap persegi, maka gabungan kaki persegi dan puncak segitiga akan bertransformasi menjadi wujud <b>Segitiga Sama Kaki Besar</b>. Kesimpulan logis menunjuk pada pilihan <b>B</b>."
+    },
+    {
+        id: "q_8",
+        number: 8,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Pecahan juring 90 derajat berikut ini apabila disatukan secara melingkar akan menghasilkan pola utuh berupa...",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="200" height="80" viewBox="0 0 200 80" style="background:#fff; border:1px dashed #ccc;">
+            <path d="M 20,40 A 20,20 0 0,1 40,20 L 40,40 Z" fill="none" stroke="#333" stroke-width="2"/>
+            <path d="M 70,20 A 20,20 0 0,1 90,40 L 70,40 Z" fill="none" stroke="#333" stroke-width="2"/>
+            <path d="M 110,40 A 20,20 0 0,1 130,60 L 110,60 Z" fill="none" stroke="#333" stroke-width="2"/>
+            <path d="M 160,60 A 20,20 0 0,1 180,40 L 180,60 Z" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><ellipse cx="40" cy="40" rx="25" ry="15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><circle cx="40" cy="40" r="20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="40,15 65,40 40,65 15,40" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><path d="M 15,40 A 25,25 0 0,1 65,40 Z" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Penjelasan Detil Guru:</b> Soal ini memperlihatkan 4 juring dengan kelengkungan sudut 90 derajat (seperempat lingkaran). Sebuah lingkaran penuh bernilai total sudut 360 derajat. Jika kita menyatukan keempat titik poros siku-siku tersebut saling membelakangi di pusat koordinat, kelengkungan luar mereka berpadu membentuk <b>Lingkaran Sempurna</b>. Opsi <b>C</b> benar."
+    },
+    {
+        id: "q_9",
+        number: 9,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Sambungkan dua potong segitiga siku-siku asimetris di bawah untuk memperoleh struktur bangun datar baku!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <polygon points="20,20 70,20 20,55" fill="none" stroke="#333" stroke-width="2"/>
+            <polygon points="110,55 160,55 160,20" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="15" y="25" width="50" height="35" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,55 65,55 40,15" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="20,20 60,20 40,55 20,55" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="10,55 70,55 55,25 25,25" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="25" y="25" width="30" height="30" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Mari Kita Logikakan:</b> Ada dua buah segitiga siku-siku yang sudut kemiringannya saling melengkapi. Coba bayangkan menggeser segitiga kedua ke arah segitiga pertama hingga sisi miring (hipotenusa) mereka saling menempel ketat. Sisi miring yang menyatu akan hilang di dalam dan menghasilkan perimeter luar berwujud <b>Persegi Panjang</b>. Jawaban akurat jatuh pada pilihan <b>A</b>."
+    },
+    {
+        id: "q_10",
+        number: 10,
+        type: "multiple-choice",
+        key: "d",
+        instruction: "Subtes 7 - Potongan Bidang (HOTS): Kombinasikan susunan tiga batang balok tipis berikut untuk membentuk bidang datar simetris tunggal!",
+        text: `<div style="text-align:center; margin:10px 0;"><svg width="180" height="80" viewBox="0 0 180 80" style="background:#fff; border:1px dashed #ccc;">
+            <rect x="20" y="20" width="40" height="12" fill="none" stroke="#333" stroke-width="2"/>
+            <rect x="75" y="20" width="40" height="12" fill="none" stroke="#333" stroke-width="2"/>
+            <rect x="130" y="20" width="40" height="12" fill="none" stroke="#333" stroke-width="2"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="25" y="25" width="30" height="30" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,60 65,60 40,20" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="15,20 65,20 50,55 30,55" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="36" fill="none" stroke="#333" stroke-width="2"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 80 80"><polygon points="20,15 60,15 60,45 20,45" fill="none" stroke="#333" stroke-width="2"/></svg></div>`
+        },
+        explanation: "<b>Pemberitahuan Singkat Guru:</b> Kita mempunyai tiga unit persegi panjang pipih mendatar yang identik. Jika ketiga balok pipih tersebut ditata secara bertumpuk tegak ke atas, ketebalan kumulatifnya merubah perwujudan visualnya menjadi sebuah <b>Persegi Panjang Tebal / Kotak Balok Tunggal</b> yang kompak. Pilihan yang memuat gambar ini adalah <b>D</b>."
+    },
+
+    // === SUBTES 8: KUBUS 3D / ROTASI SPASIAL LOGIKA (127-136) ===
+    {
+        id: "q_11",
+        number: 11,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Analisis gambar acuan. Cari opsi yang merupakan hasil rotasi logis dari kubus acuan!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 127):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="30" y1="70" x2="70" y2="70" stroke="#e74c3c" stroke-width="4"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="65" cy="27" r="6" fill="#2980b9"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="87" y="45" width="12" height="12" fill="#2ecc71"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="50" cy="70" r="10" fill="#000"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><text x="40" y="70" font-size="20">A</text></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <rect x="44" y="64" width="12" height="12" fill="#2ecc71"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="92" cy="45" r="6" fill="#2980b9"/>
+                <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+                <line x1="45" y1="27" x2="80" y2="27" stroke="#e74c3c" stroke-width="3"/>
+            </svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><line x1="30" y1="50" x2="70" y2="90" stroke="#000" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,100 80,100 80,40 20,40" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="50" cy="70" r="15" fill="none" stroke="#000"/></svg></div>`
+        },
+        explanation: "<b>Mari Kita Bedah, Murid-murid:</b> Pada kubus acuan, terdapat Garis Merah di depan, Lingkaran Biru di atap, dan Kotak Hijau di kanan. Bayangkan kubus ini diputar mendatar 90 derajat ke kiri. Kotak Hijau di kanan otomatis pindah ke depan. Lingkaran Biru di atas tetap di atas, dan Garis Merah tergeser ke sisi kiri (tidak terlihat). Penataan spasial akurat ini diwakili sempurna oleh opsi <b>C</b>."
+    },
+    {
+        id: "q_12",
+        number: 12,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Perhatikan letak lambang pada kubus acuan, pilih pola rotasi yang benar pada pilihan ganda!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 128):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="50" cy="70" r="12" fill="#9b59b6"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="50" y="22" width="15" height="5" fill="#34495e"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="85" y1="45" x2="100" y2="65" stroke="#f1c40f" stroke-width="4"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <line x1="35" y1="45" x2="65" y2="85" stroke="#f1c40f" stroke-width="4"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="92" cy="45" r="10" fill="#9b59b6"/>
+            </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="30" y="30" width="40" height="40" fill="#f1c40f"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="20" fill="#34495e"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="20" y1="20" x2="100" y2="100" stroke="#000" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="50,20 90,80 10,80" fill="#9b59b6"/></svg></div>`
+        },
+        explanation: "<b>Cara Cepat Memahami dari Guru:</b> Bagian depan berisi Lingkaran Ungu, bagian kanan ada Garis Kuning Miring, dan bagian atap berupa Balok Hitam. Jika kita memutar kubus mendatar sebesar 90 derajat ke kiri, Garis Kuning Miring di kanan akan berpindah tempat menduduki wilayah depan, sementara Lingkaran Ungu di depan bergeser menempati wilayah kanan. Hubungan ini diwakili oleh pilihan <b>A</b>."
+    },
+    {
+        id: "q_13",
+        number: 13,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Temukan gambar alternatif kubus yang merepresentasikan orientasi pemutaran yang sah!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 129):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <text x="35" y="80" font-size="40" fill="#e67e22" font-weight="bold">X</text>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="55" cy="27" r="8" fill="#1abc9c"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="85" y1="70" x2="100" y2="30" stroke="#2c3e50" stroke-width="3"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><text x="40" y="70" font-size="30">Y</text></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="50" cy="70" r="8" fill="#1abc9c"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <text x="85" y="65" font-size="25" fill="#e67e22">X</text>
+            </svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="30" y="30" width="30" height="30" fill="#1abc9c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#e67e22"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="10" y1="50" x2="110" y2="50" stroke="#1abc9c" stroke-width="5"/></svg></div>`
+        },
+        explanation: "<b>Mari Kita Analisis:</b> Perhatikan lambang 'X' di depan, Bulatan Hijau di atas, dan garis lurus di kanan. Coba bayangkan kubus acuan ini kalian gulingkan ke arah depan bawah (rotasi vertikal ke depan). Saat digulingkan ke depan, bidang atap yang berisi Bulatan Hijau otomatis maju menduduki sisi muka depan, sementara huruf 'X' turun ke bawah. Pola posisi ini cocok tepat dengan pilihan <b>B</b>."
+    },
+    {
+        id: "q_14",
+        number: 14,
+        type: "multiple-choice",
+        key: "d",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Manakah dari pilihan berikut yang merupakan proyeksi rotasi yang benar dari kubus contoh?",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 130):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <polygon points="35,80 65,80 50,50" fill="#3498db"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="45" y="20" width="15" height="15" fill="#e74c3c"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="92" cy="45" r="7" fill="#f1c40f"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="25" fill="#3498db"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="40" y="40" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,80 80,80 50,20" fill="#f1c40f"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="50" cy="70" r="7" fill="#f1c40f"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <rect x="88" y="40" width="12" height="12" fill="#e74c3c"/>
+            </svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><text x="30" y="80" font-size="50">O</text></svg></div>`
+        },
+        explanation: "<b>Penjelasan Guru:</b> Simak simbolnya: Depan ada Segitiga Biru, Atap ada Kotak Merah, Kanan ada Bulatan Kuning. Eksperimenkan rotasi mental dengan memutar kubus ke samping kanan sebanyak satu tahapan (90 derajat). Bulatan Kuning yang tadinya di kanan luar akan maju ke area depan, sedangkan Kotak Merah yang di atas bergeser menempati bidang kanan. Formasi ini tergambar presisi pada opsi <b>D</b>."
+    },
+    {
+        id: "q_15",
+        number: 15,
+        type: "multiple-choice",
+        key: "e",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Putar kubus contoh dalam ruang imajiner Anda dan tentukan bentuk barunya!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 131):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="35" y="55" width="30" height="30" fill="none" stroke="#2c3e50" stroke-width="3"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="30" y1="20" x2="95" y2="35" stroke="#9b59b6" stroke-width="3"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <polygon points="85,70 100,70 92,45" fill="#e74c3c"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="20" y="20" width="80" height="80" fill="none" stroke="#e74c3c" stroke-width="5"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="60" cy="60" r="30" fill="#9b59b6"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="10,90 110,90 60,10" fill="#2c3e50"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="10" y1="10" x2="110" y2="110" stroke="#e74c3c" stroke-width="4"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <polygon points="35,80 65,80 50,50" fill="#e74c3c"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <rect x="88" y="50" width="12" height="12" fill="none" stroke="#2c3e50" stroke-width="2"/>
+            </svg></div>`
+        },
+        explanation: "<b>Mari Kita Simak Ulasannya:</b> Gambar induk memperlihatkan Kotak Kosong di depan, Garis Ungu di atas, dan Segitiga Merah di kanan. Bila diputar horisontal ke kiri 90 derajat, Segitiga Merah yang semula di kanan akan bergeser menduduki mukanya di bagian depan, sementara Kotak Kosong terdorong ke sisi samping kiri. Keselarasan ruang ini diwakili oleh alternatif <b>E</b>."
+    },
+    {
+        id: "q_16",
+        number: 16,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Putar kubus acuan berikut dan cari bentuk rotasi spasial yang sejalan!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 132):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="50" cy="70" r="10" fill="none" stroke="#1abc9c" stroke-width="3"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="60" cy="27" r="5" fill="#e74c3c"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="92" cy="45" r="5" fill="#e74c3c"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="40" cy="65" r="5" fill="#e74c3c"/>
+                <circle cx="60" cy="75" r="5" fill="#e74c3c"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="92" cy="55" r="8" fill="none" stroke="#1abc9c" stroke-width="2"/>
+            </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="25" y="25" width="50" height="50" fill="#1abc9c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="30" fill="#e74c3c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="10,10 90,50 10,90" fill="#1abc9c"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><text x="40" y="60" font-size="20">12</text></svg></div>`
+        },
+        explanation: "<b>Mari Kita Selidiki, Anak-anak:</b> Kubus acuan memiliki Cincin Hijau di depan, satu Titik Merah di atap, dan satu Titik Merah di kanan. Mari putar kubus ke kanan sejauh 90 derajat secara horizontal. Titik Merah kecil dari sisi kanan dan atap berputar maju memadati pandangan di muka depan (tampak dua bintik), sedangkan Cincin Hijau bergeser menempati bidang kanan. Sesuai dengan pilihan <b>A</b>."
+    },
+    {
+        id: "q_17",
+        number: 17,
+        type: "multiple-choice",
+        key: "b",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Analisis pergerakan kubus acuan contoh dan tentukan bentuk rotasi spasial yang valid!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 133):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="30" y1="50" x2="70" y2="90" stroke="#34495e" stroke-width="4"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="45" y="20" width="15" height="15" fill="#e67e22"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="92" cy="45" r="8" fill="#3498db"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="10" fill="#e67e22"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="50" cy="70" r="8" fill="#3498db"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <rect x="88" y="40" width="12" height="12" fill="#e67e22"/>
+            </svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="20" y="20" width="50" height="50" fill="#34495e"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="20" y1="50" x2="100" y2="50" stroke="#e67e22" stroke-width="4"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="30,70 70,70 50,30" fill="#3498db"/></svg></div>`
+        },
+        explanation: "<b>Penjelasan Detil Guru:</b> Perhatikan posisi penandanya: Garis Hitam Miring di depan, Kotak Jingga di atap, Bulatan Biru di kanan. Mari coba kita putar mendatar kubus ini sejauh 90 derajat ke kiri. Bulatan Biru yang semula di kanan otomatis bergerak maju ke muka depan, sedangkan Kotak Jingga tetap menetap di atap. Pola ini tepat digambarkan oleh opsi <b>B</b>."
+    },
+    {
+        id: "q_18",
+        number: 18,
+        type: "multiple-choice",
+        key: "c",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Amati kubus induk dengan teliti dan pilih hasil modifikasi rotasi yang sejalan!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 134):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <text x="45" y="75" font-size="30" fill="#27ae60">■</text>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="55" cy="27" r="7" fill="#e74c3c"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="85" y1="40" x2="100" y2="60" stroke="#f1c40f" stroke-width="4"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#27ae60"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="35" y="35" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <line x1="35" y1="45" x2="65" y2="85" stroke="#f1c40f" stroke-width="4"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <text x="85" y="65" font-size="25" fill="#27ae60">■</text>
+            </svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="10" y1="90" x2="90" y2="10" stroke="#27ae60" stroke-width="3"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="20,20 80,50 20,80" fill="#f1c40f"/></svg></div>`
+        },
+        explanation: "<b>Mari Kita Cari Bersama Jawabannya:</b> Blok Hijau di depan, Bola Merah di atas, Garis Kuning di kanan. Putar kubus secara horizontal ke kiri sebesar 90 derajat. Garis Kuning di sisi kanan otomatis maju menggantikan kedudukan di depan, sedangkan Blok Hijau bergeser mengisi bagian kanan. Hubungan ini tampil persis pada gambar <b>C</b>."
+    },
+    {
+        id: "q_19",
+        number: 19,
+        type: "multiple-choice",
+        key: "a",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Bayangkan pemutaran kubus acuan dalam benak Anda untuk menjawab bentuk mana yang paling cocok!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 135):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="50" cy="70" r="12" fill="#e74c3c"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <text x="45" y="32" font-size="20" fill="#34495e">▲</text>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="87" y="45" width="12" height="12" fill="#3498db"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <rect x="44" y="64" width="12" height="12" fill="#3498db"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="92" cy="45" r="10" fill="#e74c3c"/>
+            </svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#3498db"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="30" y="30" width="40" height="40" fill="#e74c3c"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="50,15 85,85 15,85" fill="#34495e"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><text x="40" y="70" font-size="30">K</text></svg></div>`
+        },
+        explanation: "<b>Penjelasan Logika dari Guru:</b> Lingkaran Merah di depan, Segitiga Hitam di atas, Kotak Biru di kanan. Bayangkan Anda memutar bodi kubus ini horizontal 90 derajat ke kiri. Kotak Biru di kanan akan berputar maju ke depan menggeser Lingkaran Merah, akibatnya Lingkaran Merah bergeser menempati sisi kanan luar. Konfigurasi logis ini diwakili sempurna oleh opsi <b>A</b>."
+    },
+    {
+        id: "q_20",
+        number: 20,
+        type: "multiple-choice",
+        key: "e",
+        instruction: "Subtes 8 - Logika Kubus 3D (HOTS): Cari pola rotasi kubus yang paling logis dan sahih berdasarkan contoh gambar yang tersedia!",
+        text: `<div style="text-align:center; margin:10px 0;"><p><b>KUBUS ACUAN CONTOH (No. 136):</b></p>
+        <svg width="100" height="100" viewBox="0 0 120 120">
+            <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+            <line x1="30" y1="70" x2="70" y2="70" stroke="#2c3e50" stroke-width="4"/>
+            <polygon points="20,40 80,40 105,15 45,15" fill="#f1f5f9" stroke="#2c3e50" stroke-width="2"/>
+            <rect x="50" y="20" width="15" height="12" fill="#8e44ad"/>
+            <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+            <circle cx="92" cy="45" r="7" fill="#e67e22"/>
+        </svg></div>`,
+        options: {
+            a: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><rect x="30" y="30" width="40" height="40" fill="#8e44ad"/></svg></div>`,
+            b: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><circle cx="50" cy="50" r="15" fill="#e67e22"/></svg></div>`,
+            c: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><line x1="20" y1="20" x2="100" y2="100" stroke="#000" stroke-width="3"/></svg></div>`,
+            d: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120"><polygon points="10,80 90,80 50,20" fill="#8e44ad"/></svg></div>`,
+            e: `<div class="svg-option-wrapper"><svg width="60" height="60" viewBox="0 0 120 120">
+                <polygon points="20,100 80,100 80,40 20,40" fill="#f8fafc" stroke="#2c3e50" stroke-width="2"/>
+                <circle cx="50" cy="70" r="7" fill="#e67e22"/>
+                <polygon points="80,100 105,75 105,15 80,40" fill="#e2e8f0" stroke="#2c3e50" stroke-width="2"/>
+                <line x1="85" y1="70" x2="100" y2="70" stroke="#2c3e50" stroke-width="3"/>
+            </svg></div>`
+        },
+        explanation: "<b>Mari Kita Bahas Soal Terakhir:</b> Lambang acuan kita adalah Garis Datar di depan, Kotak Ungu di atap, dan Bulatan Oranye di kanan. Jika kubus diputar mendatar ke kiri sejauh 90 derajat, Bulatan Oranye dari sisi kanan akan maju ke depan, sedangkan Garis Datar tergeser ke arah kiri samping luar. Formasi orientasi ini diilustrasikan secara tepat oleh opsi <b>E</b>."
+    }
+];
+// === SISTEM ENGINE & NAVIGASI AUTO-NEXT ===
+let currentIdx = 0;
+const userAnswers = {};
+
+// Inisialisasi Aplikasi saat Dokumen Siap
+document.addEventListener("DOMContentLoaded", () => {
+    renderQuiz();
+    renderGridNavigation();
+    showQuestion(currentIdx);
+});
+
+// Fungsi Membuat Elemen Soal ke HTML
+function renderQuiz() {
+    const container = document.getElementById("quizContainer");
+    container.innerHTML = "";
+
+    masterQuestions.forEach((q, index) => {
+        const card = document.createElement("div");
+        card.className = `question-card q-card-${index}`;
+        
+        const optionKeys = ['a', 'b', 'c', 'd', 'e'];
+        let optionsHTML = "";
+        
+        optionKeys.forEach(key => {
+            optionsHTML += `
+                <button type="button" class="option-btn opt-${q.id}-${key}" onclick="selectOption('${q.id}', '${key}', ${index})">
+                    <strong>${key.toUpperCase()}.</strong> ${q.options[key]}
+                </button>
+            `;
+        });
+
+        card.innerHTML = `
+            <div class="question-text">Soal No. ${q.number}:</div>
+            <div style="margin-bottom: 15px;">${q.text}</div>
+            <div class="options-container">${optionsHTML}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Menampilkan Soal Berdasarkan Indeks Navigasi
+function showQuestion(index) {
+    const cards = document.querySelectorAll(".question-card");
+    cards.forEach(c => c.classList.remove("active"));
+    
+    cards[index].classList.add("active");
+    currentIdx = index;
+    
+    // Perbarui Teks Instruksi Subtes
+    document.getElementById("mainInstruction").innerHTML = masterQuestions[index].instruction;
+    
+    // Sinkronisasi Progress Bar
+    const total = masterQuestions.length;
+    const progressPercent = Math.round(((index + 1) / total) * 100);
+    document.getElementById("progressStep").innerText = `Soal ${index + 1} dari ${total}`;
+    document.getElementById("progressPercent").innerText = `${progressPercent}%`;
+    document.getElementById("progressFill").style.width = `${progressPercent}%`;
+
+    // Atur Visibilitas Tombol Navigasi
+    document.getElementById("prevBtn").style.display = index === 0 ? "none" : "block";
+    if (index === total - 1) {
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("submitBtn").style.display = "block";
+    } else {
+        document.getElementById("nextBtn").style.display = "block";
+        document.getElementById("submitBtn").style.display = "none";
+    }
+
+    // Update Tampilan Grid Navigasi Aktif
+    updateGridUI();
+}
+
+// Fungsi Mengubah Indeks Manual (Tombol Sebelum / Selanjutnya)
+function changeQuestion(step) {
+    let targetIdx = currentIdx + step;
+    if (targetIdx >= 0 && targetIdx < masterQuestions.length) {
+        showQuestion(targetIdx);
+    }
+}
+
+// Fungsi Memilih Jawaban dengan Mekanisme Auto-Next
+function selectOption(questionId, selectedKey, questionIndex) {
+    userAnswers[questionId] = selectedKey;
+    
+    // Reset status aktif tombol pilihan ganda di rumpun soal tersebut
+    const options = document.querySelectorAll(`.opt-${questionId}-a, .opt-${questionId}-b, .opt-${questionId}-c, .opt-${questionId}-d, .opt-${questionId}-e`);
+    options.forEach(opt => opt.classList.remove("selected"));
+    
+    // Aktifkan pilihan yang diklik user
+    const targetOpt = document.querySelector(`.opt-${questionId}-${selectedKey}`);
+    if (targetOpt) targetOpt.classList.add("selected");
+
+    // Perbarui Grid Status (Warna Oranye karena sudah terisi)
+    updateGridUI();
+
+    // FITUR AUTO-NEXT: Pindah otomatis ke soal berikutnya setelah 800ms (0.8 detik)
+    if (questionIndex < masterQuestions.length - 1) {
+        setTimeout(() => {
+            showQuestion(questionIndex + 1);
+        }, 800);
+    }
+}
+
+// === GENERATOR GRID NAVIGASI NOMOR DI BAWAH ===
+function renderGridNavigation() {
+    const gridContainer = document.getElementById("gridNavigation");
+    gridContainer.innerHTML = "";
+
+    masterQuestions.forEach((q, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `nav-num-btn num-btn-${index}`;
+        btn.innerText = q.number;
+        btn.onclick = () => showQuestion(index);
+        gridContainer.appendChild(btn);
+    });
+}
+
+// Memperbarui Status Warna Kotak Navigasi Nomor
+function updateGridUI() {
+    masterQuestions.forEach((q, index) => {
+        const btn = document.querySelector(`.num-btn-${index}`);
+        if (btn) {
+            // Hapus kelas aktif/terisi sebelumnya
+            btn.classList.remove("active", "filled");
+
+            // Jika sedang dibuka saat ini
+            if (index === currentIdx) {
+                btn.classList.add("active");
+            }
+            // Jika sudah ada jawabannya
+            if (userAnswers[q.id]) {
+                btn.classList.add("filled");
+            }
+        }
+    });
+}
+
+// === KALKULASI SKOR & GENERATOR PEMBAHASAN GURU ===
+function submitAnswers() {
+    let totalCorrect = 0;
+    const totalQuestions = masterQuestions.length;
+    const recapContainer = document.getElementById("recapContainer");
+    recapContainer.innerHTML = "";
+
+    masterQuestions.forEach(q => {
+        const userAns = userAnswers[q.id] || "-";
+        const isCorrect = userAns.toLowerCase() === q.key.toLowerCase();
+        
+        if (isCorrect) totalCorrect++;
+
+        // Membuat Kartu Pembahasan Super Rapat (Grid Anti Capek Scroll)
+        const recapCard = document.createElement("div");
+        recapCard.className = "recap-card";
+        
+        recapCard.innerHTML = `
+            <div class="recap-header">
+                <span>Soal No. ${q.number} (${q.number <= 126 ? "Potongan Bidang" : "Kubus 3D"})</span>
+                <span style="color: ${isCorrect ? '#2ecc71' : '#e74c3c'}; font-weight: bold;">
+                    ${isCorrect ? '✓ BENAR' : '✗ SALAH / KOSONG'}
+                </span>
+            </div>
+            <div style="font-size: 13px; color: #555; margin-bottom: 4px;">
+                Jawaban Anda: <strong>${userAns.toUpperCase()}</strong> | Kunci Jawaban: <strong>${q.key.toUpperCase()}</strong>
+            </div>
+            <div class="explanation-box">
+                ${q.explanation}
+            </div>
+        `;
+        recapContainer.appendChild(recapCard);
+    });
+
+    // Menghitung Nilai Akhir (Skor Maksimal 100)
+    const finalScore = Math.round((totalCorrect / totalQuestions) * 100);
+    const totalWrong = totalQuestions - totalCorrect;
+
+    // Render Hasil Akhir ke Antarmuka
+    document.getElementById("finalScore").innerText = finalScore;
+    document.getElementById("scoreStats").innerText = `Benar: ${totalCorrect} | Salah: ${totalWrong} dari ${totalQuestions} Soal (Skor Maksimal: 100)`;
+
+    // Sembunyikan Kuis, Tampilkan Hasil Akhir
+    document.getElementById("quizArea").style.display = "none";
+    document.getElementById("resultArea").style.display = "block";
+    
+    // Gulir ke Atas Halaman Hasil
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
