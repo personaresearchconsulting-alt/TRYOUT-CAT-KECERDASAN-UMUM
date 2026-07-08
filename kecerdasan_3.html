@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tes Kecerdasan - Persona Research And Consulting</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #1a4a7a; --bg: #f0f2f5; --accent: #1e4b82; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: #333; 
+            -webkit-user-select: none; 
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none; 
+        }
+        
+        .app-header { background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .brand-title { font-size: 20px; font-weight: bold; color: var(--primary); }
+        
+        .login-container { max-width: 450px; margin: 60px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border-bottom: 5px solid var(--primary); }
+        .login-container h2 { margin-top: 0; color: #222; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+        
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn:hover { background: #113355; transform: translateY(-2px); }
+        
+        .quiz-container { max-width: 800px; margin: 30px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); display: none; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #eee; }
+        .timer-box { background: #fff0f0; color: #d9534f; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 16px; border: 1px solid #f5c6cb; }
+        
+        .progress-container { background: #eee; height: 8px; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar { background: var(--primary); height: 100%; width: 0%; transition: 0.3s; }
+        
+        .question-box { font-size: 20px; font-weight: 500; margin-bottom: 25px; line-height: 1.5; color: #111; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-item { background: #f8f9fa; border: 2px solid #e9ecef; padding: 15px 20px; border-radius: 10px; cursor: pointer; font-size: 16px; transition: 0.2s; display: flex; align-items: center; }
+        .option-item:hover { background: #e8f0fe; border-color: #b4cffc; }
+        .option-item.selected { background: #d2e3fc; border-color: var(--primary); font-weight: bold; color: var(--primary); }
+        .option-prefix { font-weight: bold; margin-right: 15px; background: white; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn-nav { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-nav:hover { background: #5a6268; }
+        
+        .nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 25px; }
+        .nav-grid-item { background: #f8f9fa; border: 1px solid #ddd; text-align: center; padding: 10px 0; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+        .nav-grid-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-grid-item.answered { background: #e2f0d9; border-color: #a9d08e; color: #385723; }
+        
+        .result-container { max-width: 850px; margin: 40px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); display: none; }
+        .result-header { text-align: center; margin-bottom: 35px; }
+        .score-circle { width: 150px; height: 150px; background: var(--bg); border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: var(--primary); border: 5px solid var(--primary); }
+        
+        .teach-box { background: #fdfdfd; border-left: 5px solid var(--primary); padding: 20px; margin-bottom: 20px; border-radius: 0 10px 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .correct-label { display: inline-block; background: #e2f0d9; color: #385723; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }
+        .teach-text { background: #f4f6f9; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 15px; line-height: 1.6; }
+        
+        .app-footer { text-align: center; padding: 25px; color: #666; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .app-footer b { color: #222; font-size: 15px; }
+        
+        @media (max-width: 600px) {
+            .quiz-container { margin: 10px; padding: 15px; }
+            .option-item { padding: 12px; font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="brand-title">Persona Research & Consulting</div>
+    </div>
+
+    <div class="login-container" id="login-section">
+        <h2>Mulai Tes Kecerdasan</h2>
+        <p style="color:#777; margin-bottom:30px;">Silakan masukkan nama Anda.</p>
+        <div class="form-group">
+            <label for="inName">Nama Lengkap</label>
+            <input type="text" id="inName" placeholder="Masukkan nama..." autocomplete="off">
+        </div>
+        <button class="btn" onclick="startUjian()">Mulai Ujian Sekarang</button>
+    </div>
+
+    <div class="quiz-container" id="quiz-section">
+        <div class="quiz-header">
+            <div id="soal-title" style="font-weight: bold; font-size: 18px; color: var(--primary);">Soal No: 1</div>
+            <div class="timer-box" id="clock">Sisa Waktu: --:--</div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="p-bar"></div>
+        </div>
+
+        <div class="question-box" id="q-text">Loading Soal...</div>
+        <div class="options-list" id="opt-container"></div>
+
+        <div class="nav-buttons">
+            <button class="btn-nav" onclick="prevSoal()">Kembali</button>
+            <button class="btn-nav" style="background:var(--primary);" onclick="nextSoal()">Ragu-ragu / Lewati</button>
+        </div>
+
+        <div class="nav-grid" id="grid-container"></div>
+        
+        <div style="margin-top: 35px; text-align: center;">
+            <button class="btn" style="background:#d9534f; max-width:250px;" onclick="konfirmasiSelesai()">Selesai & Kirim Jawaban</button>
+        </div>
+    </div>
+
+    <div class="result-container" id="result-section">
+        <div id="pdf-content">
+            <div class="result-header">
+                <h2>HASIL EVALUASI SELEKSI</h2>
+                <div style="font-size:16px; color:#555;" id="user-info"></div>
+                <div class="score-circle" id="score-big">SKOR: 0</div>
+            </div>
+            <hr style="border: 0; border-top: 2px dashed #ccc; margin: 30px 0;">
+            <h3 style="color:var(--primary); font-size:22px; margin-bottom:20px;">Lembar Jawaban & Pembahasan Detil</h3>
+            <div id="discussion-list"></div>
+        </div>
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn" style="max-width: 300px; background: #28a745;" onclick="downloadPDF()">Unduh Pembahasan (PDF)</button>
+        </div>
+    </div>
+
+    <div class="app-footer">
+        &copy; 2026 <b>Persona Research & Consulting</b>.<br>
+        Layanan Asesmen & Pengembangan SDM Profesional. Telp/WA: 0877 4251 5786
+    </div>
+
+    <script>
+        // Keamanan Sistem
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 'a' || e.key === 's' || e.key === 'i')) {
+                e.preventDefault();
+            }
+        });
+
+        const EXPIRE_DATE = new Date('2027-12-31');
+        if (new Date() > EXPIRE_DATE) {
+            document.body.innerHTML = '<h2 style="text-align:center; margin-top:100px; color:red;">Lisensi Modul Ujian Kedaluwarsa. Silakan Hubungi Persona Research & Consulting!</h2>';
+        }
+
+        // DATABASE SOAL (1 - 100)
+        const bank = [
+            {
+                q: "1. KELINDAN = ...",
+                o: ["Ikatan", "Erat", "Putus", "Sutra", "Hubungan"],
+                a: 0,
+                h: "Berdasarkan KBBI, Kelindan memiliki arti benang berpilin yang digunakan untuk menyusupkan jarum, atau diartikan secara kiasan sebagai pengikat/ikatan yang erat. Maka sinonim yang paling tepat adalah Ikatan."
+            },
+            {
+                q: "2. TASDIK = ...",
+                o: ["Pemberian", "Pemberitahuan", "Pembenaran", "Penyangkalan", "Penerimaan"],
+                a: 2,
+                h: "Tasdik secara etimologi berarti menetapkan, mengiyakan, atau membenarkan. Dalam konteks bahasa, tasdik bermakna pengakuan atau pembenaran terhadap sesuatu hal. Jadi sinonimnya adalah Pembenaran."
+            },
+            {
+                q: "3. AGUNAN = ...",
+                o: ["Pinjaman", "Hutang", "Jaminan", "Riba", "Gadai"],
+                a: 2,
+                h: "Agunan adalah aset atau barang berharga yang diserahkan oleh peminjam kepada pemberi pinjaman sebagai jaminan atas pinjaman yang diterimanya. Sinonim yang tepat adalah Jaminan."
+            },
+            {
+                q: "4. ANGOT = ...",
+                o: ["Kumat", "Sembuh", "Sakit", "Parah", "Dingin"],
+                a: 0,
+                h: "Angot adalah istilah percakapan yang merujuk pada kondisi sakit kepala atau penyakit yang mendadak kumat kembali. Maka kata yang sepadan adalah Kumat."
+            },
+            {
+                q: "5. BUBUT = ...",
+                o: ["Cabut", "Potong", "Pahat", "Kikis", "Tarik"],
+                a: 0,
+                h: "Membubut salah satu maknanya adalah mencabut (seperti mencabut bulu ayam atau rumput). Arti kata dasarnya di KBBI adalah cabut."
+            },
+            {
+                q: "6. CANGKIR = ...",
+                o: ["Cawan", "Gelas", "Mug", "Sloki", "Piala"],
+                a: 0,
+                h: "Cangkir dan cawan merupakan wadah kecil yang serupa untuk meminum teh atau kopi, di mana cawan sering kali merujuk pada piring kecil alas cangkir atau wadah minum itu sendiri."
+            },
+            {
+                q: "7. DELIK = ...",
+                o: ["Hukum", "Undang-undang", "Tindak Pidana", "Pengadilan", "Saksi"],
+                a: 2,
+                h: "Dalam hukum pidana, delik adalah suatu perbuatan yang melanggar hukum dan dapat dikenakan sanksi pidana; istilah resminya adalah Tindak Pidana."
+            },
+            {
+                q: "8. EKSPLOITASI = ...",
+                o: ["Pemanfaatan", "Pendayagunaan", "Pemerasan", "Penguasaan", "Penggalian"],
+                a: 2,
+                h: "Eksploitasi bermakna pemanfaatan secara sewenang-wenang atau berlebihan terhadap subjek tertentu untuk keuntungan pribadi, yang identik dengan tindakan Pemerasan."
+            },
+            {
+                q: "9. FATAL = ...",
+                o: ["Bahaya", "Parah", "Mematikan", "Celaka", "Buruk"],
+                a: 2,
+                h: "Fatal berarti sesuatu yang dapat menimbulkan akibat yang sangat buruk, merugikan, tidak dapat diperbaiki kembali, bahkan bersifat Mematikan."
+            },
+            {
+                q: "10. GANCU = ...",
+                o: ["Pengait", "Palu", "Parang", "Cangkul", "Linggis"],
+                a: 0,
+                h: "Gancu adalah sebatang galah yang dilengkapi dengan kait besi pada ujungnya, biasanya dipakai untuk menarik karung atau memetik buah. Jadi arti gancu adalah Pengait."
+            },
+            {
+                q: "11. HARAFIAH = ...",
+                o: ["Kata demi kata", "Makna asli", "Sesuai tulisan", "Tersirat", "Terjemahan"],
+                a: 0,
+                h: "Harafiah memiliki arti penerjemahan atau pemaknaan yang didasarkan pada huruf atau kata per kata secara tekstual tanpa melihat konteks kiasannya (Kata demi kata)."
+            },
+            {
+                q: "12. INSKRIPSI = ...",
+                o: ["Tulisan", "Prasasti", "Ukiran", "Naskah", "Catatan"],
+                a: 1,
+                h: "Inskripsi adalah kata, kalimat, atau tulisan yang sengaja diukir atau dipahat pada batu atau logam kuno; sebutan umumnya adalah Prasasti."
+            },
+            {
+                q: "13. JENGGALA = ...",
+                o: ["Hutan", "Gurun", "Sabana", "Taman", "Kebun"],
+                a: 0,
+                h: "Kata Jenggala berasal dari bahasa Sansekerta yang berarti wilayah hutan lebat atau tanah liar. Sinonim murninya adalah Hutan."
+            },
+            {
+                q: "14. KAPITAL = ...",
+                o: ["Besar", "Modal", "Utama", "Pusat", "Harta"],
+                a: 1,
+                h: "Dalam bidang ekonomi dan bisnis, kapital (capital) diterjemahkan sebagai dana investasi awal, aset berwujud, atau Modal usaha."
+            },
+            {
+                q: "15. LAIK = ...",
+                o: ["Layak", "Bisa", "Boleh", "Pantas", "Patut"],
+                a: 0,
+                h: "Kata 'Laik' merupakan bentuk baku terikat yang berarti memenuhi persyaratan yang ditentukan atau Layak (misalnya: laik jalan)."
+            },
+            {
+                q: "16. ABADI >< ...",
+                o: ["Fana", "Lama", "Kekal", "Baka", "Abstrak"],
+                a: 0,
+                h: "Abadi memiliki arti kekal atau tidak ada endings. Lawan kata dari kekal/abadi adalah rusak, hilang, atau tidak kekal, yaitu Fana."
+            },
+            {
+                q: "17. AMAL >< ...",
+                o: ["Kebajikan", "Perbuatan", "Dosa", "Zakat", "Sedekah"],
+                a: 2,
+                h: "Amal diartikan sebagai perbuatan baik atau kebajikan yang mendatangkan pahala. Lawan katanya adalah perbuatan buruk yang mendatangkan Dosa."
+            },
+            {
+                q: "18. BANYAK >< ...",
+                o: ["Agung", "Sedikit", "Besar", "Luas", "Jamak"],
+                a: 1,
+                h: "Banyak merujuk pada jumlah atau kuantitas yang besar. Lawan kata yang paling tepat secara kuantitatif adalah Sedikit."
+            },
+            {
+                q: "19. CAIR >< ...",
+                o: ["Padat", "Kental", "Beku", "Es", "Keras"],
+                a: 0,
+                h: "Dalam fase benda fisik, bentuk cair didefinisikan sebagai zat yang berubah bentuk mengikuti wadahnya. Lawan kata utamanya dalam term fisika adalah Padat."
+            },
+            {
+                q: "20. DEDUKSI >< ...",
+                o: ["Konduksi", "Reduksi", "Induksi", "Abduksi", "Intuisi"],
+                a: 2,
+                h: "Deduksi adalah penarikan kesimpulan dari keadaan yang umum ke yang khusus. Kebalikannya adalah Induksi, yaitu penarikan kesimpulan dari hal khusus ke umum."
+            },
+            {
+                q: "21. EKSPRESI >< ...",
+                o: ["Aktualisasi", "Reaksi", "Impresi", "Depresi", "Fusi"],
+                a: 2,
+                h: "Ekspresi adalah pengungkapan atau proses menyatakan maksud/perasaan keluar. Lawan katanya adalah Impresi, yaitu kesan atau efek yang diterima ke dalam diri."
+            },
+            {
+                q: "22. FISIK >< ...",
+                o: ["Badan", "Mental", "Jasmani", "Material", "Nyata"],
+                a: 1,
+                h: "Fisik berhubungan dengan ragawi atau jasmani yang tampak secara lahiriah. Lawan katanya adalah Mental atau rohani yang bersifat batiniah."
+            },
+            {
+                q: "23. GERSANG >< ...",
+                o: ["Subur", "Kering", "Tandus", "Panas", "Gembur"],
+                a: 0,
+                h: "Gersang berarti kering dan tidak dapat ditumbuhi tanaman (tandus). Lawan kata dari gersang adalah Subur."
+            },
+            {
+                q: "24. HEMAT >< ...",
+                o: ["Pelit", "Cermat", "Boros", "Kikir", "Mewah"],
+                a: 2,
+                h: "Hemat artinya berhati-hati dan cermat dalam menggunakan uang atau barang. Lawan katanya adalah Boros."
+            },
+            {
+                q: "25. IBU >< ...",
+                o: ["Bapak", "Anak", "Paman", "Bibi", "Nenek"],
+                a: 1,
+                h: "Dalam hubungan silsilah keturunan langsung (generasi), posisi atas adalah orang tua (Ibu/Ayah) dan lawan generasi di bawahnya adalah Anak."
+            },
+            {
+                q: "26. JINAK >< ...",
+                o: ["Liar", "Galak", "Buas", "Takut", "Berani"],
+                a: 2,
+                h: "Jinak artinya tidak liar, tidak menakutkan, dan mudah didekati/dipelihara. Lawan kata yang paling tepat untuk sifat hewan yang mengancam keselamatan adalah Buas."
+            },
+            {
+                q: "27. KHAS >< ...",
+                o: ["Khusus", "Istimewa", "Umum", "Eksklusif", "Unik"],
+                a: 2,
+                h: "Khas memiliki arti khusus atau spesifik yang membedakannya dari yang lain. Lawan katanya adalah Umum."
+            },
+            {
+                q: "28. LONGGAR >< ...",
+                o: ["Sempit", "Ketat", "Padat", "Pas", "Rapat"],
+                a: 1,
+                h: "Longgar berarti mempunyai sela yang luas, tidak sendat, atau tidak sesak. Lawan kata dari pakaian atau ikatan yang longgar adalah Ketat."
+            },
+            {
+                q: "29. MAJU >< ...",
+                o: ["Mundur", "Berhenti", "Jalan", "Lari", "Turun"],
+                a: 0,
+                h: "Maju berarti bergerak melangkah ke depan. Lawan kata arah gerak yang berlawanan arah adalah Mundur."
+            },
+            {
+                q: "30. NOMADEN >< ...",
+                o: ["Menetap", "Berpindah", "Berkelana", "Hijrah", "Mapan"],
+                a: 0,
+                h: "Nomaden artinya memiliki pola hidup yang berpindah-pindah tempat tinggal. Lawan katanya adalah Menetap."
+            },
+            {
+                q: "31. MOBIL - BENSIN = PELARI - ...",
+                o: ["Makanan", "Sepatu", "Kaos", "Lintasan", "Air"],
+                a: 0,
+                h: "Mobil membutuhkan bensin sebagai sumber energi agar bisa berjalan, sedangkan pelari membutuhkan makanan sebagai sumber energi agar bisa berlari."
+            },
+            {
+                q: "32. BAJU - PAKAIAN = BERAS - ...",
+                o: ["Padi", "Pangan", "Sawah", "Karung", "Petani"],
+                a: 1,
+                h: "Baju adalah salah satu jenis pakaian (hubungan jenis-kelompok). Begitu juga beras, beras merupakan salah satu jenis pangan."
+            },
+            {
+                q: "33. KAKAK TUA - MERPATI = GURAME - ...",
+                o: ["Hiu", "Kakap", "Paus", "Lumba-lumba", "Tuna"],
+                a: 1,
+                h: "Kakak tua dan merpati adalah dua nama burung yang sejenis (sama-sama unggas air/udara tawar). Gurame dan kakap adalah nama ikan yang sejenis (sama-sama ikan)."
+            },
+            {
+                q: "34. SENDOK - MAKAN = PISAU - ...",
+                o: ["Tajam", "Potong", "Dapur", "Besi", "Luka"],
+                a: 1,
+                h: "Sendok adalah alat yang digunakan untuk makan. Pisau adalah alat yang digunakan untuk memotong."
+            },
+            {
+                q: "35. KEPALA - TOPI = TANGAN - ...",
+                o: ["Cincin", "Jam", "Sarung Tangan", "Gelang", "Kuku"],
+                a: 2,
+                h: "Topi digunakan untuk menutup atau melindungi kepala. Sarung tangan digunakan untuk menutup atau melindungi tangan."
+            },
+            {
+                q: "36. GENTING - RUMAH = BENANG - ...",
+                o: ["Jarum", "Kain", "Sutra", "Pakaian", "Jahit"],
+                a: 1,
+                h: "Genting merupakan komponen penyusun sebuah rumah. Secara analogis, benang merupakan komponen penyusun selembar kain."
+            },
+            {
+                q: "37. BULAN - BUMI = BUMI - ...",
+                o: ["Matahari", "Tata Surya", "Planet", "Bintang", "Satelit"],
+                a: 0,
+                h: "Bulan bergerak mengelilingi (mengorbit) Bumi. Dengan hubungan yang sama, Bumi bergerak mengelilingi Matahari."
+            },
+            {
+                q: "38. TUNTUTAN - SANTUNAN = HADIAH - ...",
+                o: ["Pemberian", "Prestasi", "Hukuman", "Sayembara", "Pujian"],
+                a: 2,
+                h: "Tuntututan dan santunan merupakan dua hal yang berlawanan arah kepentingannya (hak vs kewajiban/bantuan). Analogi lawan kata tindakan yang sepadan untuk hadiah adalah hukuman."
+            },
+            {
+                q: "39. RAMBUT - GUNDUL = PAKAIAN - ...",
+                o: ["Baju", "Bugil", "Celana", "Kain", "Kulit"],
+                a: 1,
+                h: "Orang yang tidak memiliki rambut di kepalanya disebut gundul. Seseorang yang tidak mengenakan pakaian disebut bugil."
+            },
+            {
+                q: "40. KANCING - BAJU = KUNCI - ...",
+                o: ["Pintu", "Gembok", "Rumah", "Besi", "Logam"],
+                a: 0,
+                h: "Kancing berfungsi untuk merapatkan atau mengunci baju. Kunci berfungsi untuk merapatkan atau mengunci pintu."
+            },
+            {
+                q: "41. Semua mamalia bernapas dengan paru-paru. Lumba-lumba adalah mamalia. Kesimpulan yang tepat adalah...",
+                o: ["Lumba-lumba bernapas dengan insang", "Lumba-lumba bernapas dengan paru-paru", "Sebagian lumba-lumba bernapas dengan paru-paru", "Semua mamalia adalah lumba-lumba", "Lumba-lumba bukan bernapas dengan paru-paru"],
+                a: 1,
+                h: "Berdasarkan premis mayor (semua mamalia bernapas dengan paru-paru) and premis minor (lumba-lumba adalah mamalia), maka mutlak disimpulkan bahwa lumba-lumba bernapas dengan paru-paru."
+            },
+            {
+                q: "42. Semua kendaraan umum harus memiliki izin trayek. Sebagian bus adalah kendaraan umum. Kesimpulan yang tepat adalah...",
+                o: ["Semua bus memiliki izin trayek", "Sebagian bus harus memiliki izin trayek", "Semua yang memiliki izin trayek adalah bus", "Sebagian bus tidak memiliki izin trayek", "Bus umum tidak perlu izin trayek"],
+                a: 1,
+                h: "Karena hanya sebagian bus yang tergolong kendaraan umum, maka hanya bus yang termasuk kendaraan umum tersebut yang wajib memiliki izin trayek. Jadi, sebagian bus harus memiliki izin trayek."
+            },
+            {
+                q: "43. Jika hari hujan, maka tanah basah. Hari ini tanah tidak basah. Kesimpulan yang tepat adalah...",
+                o: ["Hari ini pasti hujan", "Hari ini hujan lebat", "Hari ini tidak hujan", "Hari ini tanah kering", "Hari ini mendung"],
+                a: 2,
+                h: "Menggunakan aturan Modus Tollens: Jika P maka Q. Negasi Q (~Q) terjadi. Maka kesimpulannya adalah negasi P (~P), yaitu hari ini tidak hujan."
+            },
+            {
+                q: "44. Semua siswa kelas XII lulus ujian. Sebagian siswa kelas XII mendaftar ke PTN. Kesimpulan yang tepat adalah...",
+                o: ["Semua siswa yang mendaftar ke PTN tidak lulus ujian", "Sebagian siswa yang mendaftar ke PTN lulus ujian", "Semua siswa yang lulus ujian mendaftar ke PTN", "Sebagian siswa yang lulus ujian tidak mendaftar ke PTN", "Siswa kelas XII tidak lulus ujian"],
+                a: 1,
+                h: "Karena seluruh siswa kelas XII lulus ujian, maka bagian dari mereka yang mendaftar ke PTN juga dipastikan merupakan siswa yang lulus ujian."
+            },
+            {
+                q: "45. Susi lebih tinggi daripada Tina. Tina lebih tinggi daripada Utami. Kesimpulan yang tepat adalah...",
+                o: ["Susi adalah yang paling pendek", "Tina adalah yang paling tinggi", "Utami lebih tinggi daripada Susi", "Susi lebih tinggi daripada Utami", "Tina dan Susi sama tingginya"],
+                a: 3,
+                h: "Dari hubungan urutan tinggi badan: Susi > Tina > Utami. Maka dapat disimpulkan secara mutlak bahwa Susi lebih tinggi daripada Utami."
+            },
+            {
+                q: "46. Hasil dari 14 + 6 &times; 5 - 12 &divide; 3 adalah...",
+                o: ["30", "40", "28", "42", "38"],
+                a: 1,
+                h: "Sesuai hukum operasi matematika (Kabataku), lakukan perkalian dan pembagian terlebih dahulu:<br>6 &times; 5 = 30<br>12 &divide; 3 = 4<br>Maka: 14 + 30 - 4 = 44 - 4 = 40."
+            },
+            {
+                q: "47. Berapakah nilai dari 25% dari 160 ditambah 0,5 &times; 80?",
+                o: ["60", "70", "80", "90", "100"],
+                a: 2,
+                h: "Kalkulasi pengerjaan:<br>25% &times; 160 = 40<br>0,5 &times; 80 = 40<br>Maka hasil akhirnya adalah 40 + 40 = 80."
+            },
+            {
+                q: "48. Jika x = 5 dan y = 3, berapakah nilai dari 2x<sup>2</sup> - 3xy + y<sup>2</sup>?",
+                o: ["12", "14", "16", "18", "20"],
+                a: 1,
+                h: "Substitusikan nilai x dan y ke dalam persamaan:<br>2(5)<sup>2</sup> - 3(5)(3) + (3)<sup>2</sup><br>= 2(25) - 45 + 9<br>= 50 - 45 + 9 = 5 + 9 = 14."
+            },
+            {
+                q: "49. Nilai dari &radic;(144) + &radic;(169) - &radic;(225) adalah...",
+                o: ["8", "10", "12", "14", "16"],
+                a: 1,
+                h: "Hitung nilai akar kuadrat masing-masing bilangan:<br>&radic;144 = 12<br>&radic;169 = 13<br>&radic;225 = 15<br>Maka: 12 + 13 - 15 = 25 - 15 = 10."
+            },
+            {
+                q: "50. Berapakah hasil operasi pecahan berikut: 3/4 + 1/2 - 1/8?",
+                o: ["7/8", "9/8", "5/8", "3/8", "11/8"],
+                a: 1,
+                h: "Samakan penyebutnya menjadi 8:<br>3/4 = 6/8<br>1/2 = 4/8<br>Maka: 6/8 + 4/8 - 1/8 = 9/8."
+            },
+            {
+                q: "51. Tentukan angka kelanjutan dari pola deret berikut: 2, 4, 8, 16, 32, ...",
+                o: ["48", "50", "64", "72", "80"],
+                a: 2,
+                h: "Pola deret geometri ini selalu dikalikan 2 (&times;2) untuk setiap suku berikutnya. Suku berikutnya adalah 32 &times; 2 = 64."
+            },
+            {
+                q: "52. Pola deret angka: 5, 10, 8, 13, 11, 16, ... Tentukan dua angka berikutnya!",
+                o: ["14, 19", "15, 20", "14, 21", "13, 18", "12, 17"],
+                a: 0,
+                h: "Pola deret bergantian operasi secara berkala: (+5), (-2), (+5), (-2).<br>16 - 2 = 14<br>14 + 5 = 19.<br>Maka kelanjutannya adalah 14, 19."
+            },
+            {
+                q: "53. Angka kelanjutan dari deret: 1, 3, 6, 10, 15, ... adalah...",
+                o: ["20", "21", "22", "23", "25"],
+                a: 1,
+                h: "Pola penambahan bertingkat secara berurutan: +2, +3, +4, +5.<br>Maka penambahan berikutnya adalah +6, yaitu 15 + 6 = 21."
+            },
+            {
+                q: "54. Isi deret angka yang kosong berikut: 100, 95, 85, 70, ..., ...",
+                o: ["60, 45", "55, 35", "50, 25", "50, 30", "55, 40"],
+                a: 2,
+                h: "Pola pengurangan bertingkat dengan selisih kelipatan 5: -5, -10, -15.<br>Pengurangan berikutnya adalah -20 dan -25.<br>70 - 20 = 50<br>50 - 25 = 25.<br>Maka jawabannya 50, 25."
+            },
+            {
+                q: "55. Kelanjutan pola deret: 3, 9, 27, 81, ... adalah...",
+                o: ["120", "162", "243", "324", "412"],
+                a: 2,
+                h: "Pola deret geometri dikalikan 3 (&times;3) pada tiap suku. Angka berikutnya adalah 81 &times; 3 = 243."
+            },
+            {
+                q: "56. Tiga orang pekerja mampu membuat 15 keranjang dalam waktu 2 jam. Berapa banyak keranjang yang dapat dibuat oleh 5 orang pekerja dalam waktu 4 jam?",
+                o: ["30", "40", "50", "60", "70"],
+                a: 2,
+                h: "Menggunakan rumus perbandingan senilai majemuk (Pekerja &times; Waktu) / Hasil = Konstan.<br>(3 &times; 2) / 15 = (5 &times; 4) / X<br>6 / 15 = 20 / X<br>6X = 300 &rarr; X = 50 keranjang."
+            },
+            {
+                q: "57. Sebuah mobil menempuh jarak 120 km dengan kecepatan rata-rata 60 km/jam. Jika kecepatan dinaikkan menjadi 80 km/jam, berapa waktu yang dihemat?",
+                o: ["30 menit", "45 menit", "1 jam", "1,5 jam", "15 menit"],
+                a: 0,
+                h: "Waktu awal = 120 / 60 = 2 jam.<br>Waktu baru = 120 / 80 = 1,5 jam (1 jam 30 menit).<br>Waktu yang dihemat = 2 jam - 1,5 jam = 0,5 jam atau 30 menit."
+            },
+            {
+                q: "58. Umur Ayah saat ini adalah 3 kali umur Budi. Jika 5 tahun yang lalu umur Ayah adalah 40 tahun, berapakah umur Budi saat ini?",
+                o: ["13 tahun", "14 tahun", "15 tahun", "16 tahun", "17 tahun"],
+                a: 2,
+                h: "Umur Ayah saat ini = 40 + 5 = 45 tahun.<br>Karena Umur Ayah = 3 &times; Umur Budi, maka Umur Budi = 45 / 3 = 15 tahun."
+            },
+            {
+                q: "59. Sebuah toko baju memberikan diskon ganda sebesar 20% + 10%. Jika harga awal kemeja adalah Rp200.000, berapakah harga yang harus dibayar pembeli setelah diskon?",
+                o: ["Rp140.000", "Rp144.000", "Rp150.000", "Rp160.000", "Rp136.000"],
+                a: 1,
+                h: "Diskon pertama 20%: Rp200.000 &times; 80% = Rp160.000.<br>Diskon kedua 10% dari harga baru: Rp160.000 &times; 90% = Rp144.000."
+            },
+            {
+                q: "60. Rata-rata nilai matematika dari 4 siswa adalah 75. Jika ditambah dengan nilai Roni, rata-ratanya berubah menjadi 80. Berapakah nilai matematika Roni?",
+                o: ["85", "90", "95", "100", "80"],
+                a: 3,
+                h: "Total nilai awal = 4 &times; 75 = 300.<br>Total nilai setelah ditambah Roni = 5 &times; 80 = 400.<br>Nilai Roni = 400 - 300 = 100."
+            },
+            {
+                q: "61. ABREVIASI = ...",
+                o: ["Pemanjangan", "Singkatan", "Pengganti", "Rangkuman", "Penyatuan"],
+                a: 1,
+                h: "Menurut KBBI, abreviasi memiliki makna pemendekan kata atau bentuk ringkas, yang setara dengan istilah Singkatan."
+            },
+            {
+                q: "62. KONTINGEN = ...",
+                o: ["Pasukan", "Kelompok Utusan", "Rapat Kerja", "Wilayah Perbatasan", "Dana Cadangan"],
+                a: 1,
+                h: "Kontingen bermakna sekelompok orang atau perwakilan yang dikirim untuk mewakili suatu daerah/negara dalam acara besar. Sinonimnya adalah Kelompok Utusan."
+            },
+            {
+                q: "63. INSIDENSIAL >< ...",
+                o: ["Kebetulan", "Rutin", "Mendadak", "Langka", "Sengaja"],
+                a: 1,
+                h: "Insidensial berarti peristiwa yang terjadi sewaktu-waktu atau secara tidak tetap. Lawan kata yang tepat adalah Rutin atau terencana berkala."
+            },
+            {
+                q: "64. SKEPTIS >< ...",
+                o: ["Ragu", "Yakin", "Curiga", "Apatis", "Pesimis"],
+                a: 1,
+                h: "Skeptis adalah sikap kurang percaya atau penuh keraguan terhadap sesuatu. Lawan katanya adalah Yakin atau percaya."
+            },
+            {
+                q: "65. DOKTER - PENYAKIT = MEKANIK - ...",
+                o: ["Bengkel", "Mobil", "Kerusakan", "Kunci", "Oli"],
+                a: 2,
+                h: "Dokter bertugas menganalisis dan mengatasi penyakit. Analogi penanganan profesi yang sesuai adalah mekanik yang mendeteksi dan mengatasi Kerusakan mekanis."
+            },
+            {
+                q: "66. KUAS - LUKIS = CANGKUL - ...",
+                o: ["Petani", "Sawah", "Tanah", "Tanam", "Kebun"],
+                a: 3,
+                h: "Kuas merupakan alat yang digunakan untuk melukis (predikat/kata kerja). Cangkul merupakan alat yang digunakan untuk menanam atau bertanam."
+            },
+            {
+                q: "67. Semua mamalia menyusui anaknya. Platipus bertelur tetapi menyusui anaknya. Kesimpulan yang tepat adalah...",
+                o: ["Platipus bukan mamalia", "Platipus adalah mamalia", "Sebagian platipus bertelur", "Platipus tidak menyusui anaknya", "Mamalia tidak bertelur"],
+                a: 1,
+                h: "Syarat mutlak menjadi mamalia berdasarkan premis adalah menyusui anaknya. Karena platipus menyusui anaknya, maka platipus tergolong sebagai mamalia."
+            },
+            {
+                q: "68. Jika hari libur, pasar ramai. Hari ini pasar tidak ramai. Kesimpulan yang tepat adalah...",
+                o: ["Hari ini hari libur", "Hari ini bukan hari libur", "Hari ini pasar tutup", "Hari ini mendung", "Pasar sepi karena libur"],
+                a: 1,
+                h: "Melalui prinsip penarikan kesimpulan Modus Tollens, jika konsekuen salah (pasar tidak ramai), maka anteseden juga salah (hari ini bukan hari libur)."
+            },
+            {
+                q: "69. Jika panjang sebuah persegi panjang bertambah 20% dan lebarnya berkurang 10%, persentase perubahan luas persegi panjang tersebut adalah...",
+                o: ["Bertambah 10%", "Berkurang 8%", "Bertambah 8%", "Tetap", "Bertambah 12%"],
+                a: 2,
+                h: "Misal Luas awal = 1 &times; 1 = 1.<br>Luas baru = 1,20 &times; 0,90 = 1,08.<br>Perubahan luas = 1,08 - 1 = 0,08 atau Bertambah 8%."
+            },
+            {
+                q: "70. Suku ke-8 dari deret aritmatika: 3, 7, 11, 15, ... adalah...",
+                o: ["27", "29", "31", "33", "35"],
+                a: 2,
+                h: "Suku awal (a) = 3, beda selisih (b) = 4.<br>Rumus suku ke-n: U<sub>n</sub> = a + (n-1)b.<br>U<sub>8</sub> = 3 + (8-1)4 = 3 + 7(4) = 3 + 28 = 31."
+            },
+            {
+                q: "71. Tentukan angka kelanjutan dari pola deret berikut: 1, 4, 9, 16, 25, 36, ...",
+                o: ["45", "48", "49", "50", "64"],
+                a: 2,
+                h: "Pola deret ini merupakan barisan bilangan kuadrat sempurna:<br>1<sup>2</sup>=1, 2<sup>2</sup>=4, 3<sup>2</sup>=9, 4<sup>2</sup>=16, 5<sup>2</sup>=25, 6<sup>2</sup>=36.<br>Suku berikutnya adalah 7<sup>2</sup> = 49."
+            },
+            {
+                q: "72. Pola deret angka: 2, 3, 5, 8, 13, 21, ... Angka berikutnya adalah...",
+                o: ["29", "32", "34", "35", "40"],
+                a: 2,
+                h: "Ini adalah deret bilangan Fibonacci, di mana setiap suku berikutnya merupakan hasil penjumlahan dari dua suku sebelumnya:<br>2 + 3 = 5<br>3 + 5 = 8<br>5 + 8 = 13<br>8 + 13 = 21<br>Suku berikutnya adalah 13 + 21 = 34."
+            },
+            {
+                q: "73. Berapakah hasil dari 0,666... &times; 150 + 25% dari 200?",
+                o: ["120", "130", "140", "150", "160"],
+                a: 3,
+                h: "Konversi nilai pecahan desimal berulang dan persentase:<br>0,666... = 2/3<br>2/3 &times; 150 = 100<br>25% dari 200 = 50<br>Maka hasil akhirnya adalah 100 + 50 = 150."
+            },
+            {
+                q: "74. Jika roda A berputar 12 kali maka roda B berputar 9 kali. Jika roda A berputar 36 kali, berapa kali roda B berputar?",
+                o: ["18 kali", "24 kali", "27 kali", "30 kali", "36 kali"],
+                a: 2,
+                h: "Gunakan konsep perbandingan senilai:<br>Putaran A1 / Putaran B1 = Putaran A2 / Putaran B2<br>12 / 9 = 36 / X<br>12X = 9 &times; 36<br>12X = 324 &rarr; X = 27 kali."
+            },
+            {
+                q: "75. Dari kelompok kata berikut, manakah kata yang TIDAK termasuk dalam kelompoknya?",
+                o: ["Singa", "Harimau", "Serigala", "Sapi", "Kucing"],
+                a: 3,
+                h: "Singa, harimau, serigala, dan kucing merupakan kelompok hewan karnivora (pemakan daging). Sementara Sapi adalah hewan herbivora (pemakan tumbuhan), sehingga tidak termasuk dalam kelompok tersebut."
+            },
+            {
+                q: "76. DEHIDRASI = ...",
+                o: ["Kehilangan cairan", "Penyimpanan air", "Kekurangan vitamin", "Proses penguapan", "Penyaringan darah"],
+                a: 0,
+                h: "Berdasarkan istilah medis dan KBBI, dehidrasi adalah kondisi di mana tubuh kehilangan atau kekurangan cairan yang signifikan sehingga mengganggu fungsi normal organ."
+            },
+            {
+                q: "77. GENERIK = ...",
+                o: ["Khusus", "Mahal", "Umum", "Paten", "Asli"],
+                a: 2,
+                h: "Generik berarti umum atau lazim; berhubungan dengan seluruh kelompok atau kelas tertentu dan bukan produk spesifik bermerek. Sinonimnya adalah Umum."
+            },
+            {
+                q: "78. PROGRESID >< ...",
+                o: ["Maju", "Modern", "Stagnan", "Regresif", "Aktif"],
+                a: 3,
+                h: "Progresif artinya cenderung ke arah kemajuan atau berkembang positif. Lawan katanya adalah Regresif, yang bermakna condong ke arah kemunduran."
+            },
+            {
+                q: "79. ASLI >< ...",
+                o: ["Murni", "Tulen", "Duplikat", "Kuno", "Autentik"],
+                a: 2,
+                h: "Asli berarti bukan buatan, murni, atau bersumber langsung dari awalnya. Lawan kata yang tepat untuk menunjukkan benda tiruan adalah Duplikat."
+            },
+            {
+                q: "80. GURU - SEKOLAH = PETANI - ...",
+                o: ["Cangkul", "Sawah", "Padi", "Traktor", "Desa"],
+                a: 1,
+                h: "Hubungan profesi dan tempat bekerja: Guru bekerja di sekolah, secara analogis Petani bekerja di sawah."
+            },
+            {
+                q: "81. CAIRAN - GELAS = DATA - ...",
+                o: ["Informasi", "Komputer", "Kertas", "Grafik", "Flashdisk"],
+                a: 1,
+                h: "Gelas digunakan sebagai wadah fisik untuk memproses atau menyimpan cairan. Secara digital, Komputer digunakan sebagai wadah/media utama untuk memproses atau menyimpan data."
+            },
+            {
+                q: "82. Semua karyawan perusahaan memakai seragam rapi. Dedi adalah karyawan perusahaan tersebut. Kesimpulan yang tepat adalah...",
+                o: ["Dedi terkadang memakai seragam", "Dedi tidak memakai seragam rapi", "Dedi memakai seragam rapi", "Bukan Dedi yang memakai seragam rapi", "Semua yang memakai seragam rapi adalah Dedi"],
+                a: 2,
+                h: "Karena semua karyawan tanpa terkecuali wajib memakai seragam rapi, dan Dedi adalah salah satu karyawan, maka kesimpulan mutlaknya adalah Dedi memakai seragam rapi."
+            },
+            {
+                q: "83. Jika nilai ujian Andi di atas 75, maka Andi lulus. Nilai ujian Andi adalah 80. Kesimpulan yang tepat adalah...",
+                o: ["Andi tidak lulus", "Andi lulus ujian", "Andi harus ikut remidial", "Nilai Andi pas-pasan", "Andi adalah siswa terpintar"],
+                a: 1,
+                h: "Berdasarkan prinsip Modus Ponens: Jika P maka Q. Ternyata kondisi P terpenuhi (80 > 75). Maka konsekuensinya Q pasti terjadi, yaitu Andi lulus ujian."
+            },
+            {
+                q: "84. Suatu bak mandi berbentuk kubus dengan panjang rusuk 50 cm. Berapakah volume maksimal air yang dapat ditampung bak tersebut dalam satuan liter?",
+                o: ["25 liter", "50 liter", "125 liter", "250 liter", "500 liter"],
+                a: 2,
+                h: "Volume kubus = s &times; s &times; s = 50 &times; 50 &times; 50 = 125.000 cm<sup>3</sup>.<br>Konversi ke liter (dm<sup>3</sup>): 125.000 / 1.000 = 125 liter."
+            },
+            {
+                q: "85. Tentukan suku kelanjutan deret angka berikut: 100, 50, 25, 12.5, ...",
+                o: ["6.25", "6.5", "7.25", "8", "5.5"],
+                a: 0,
+                h: "Pola deret geometri ini selalu dibagi 2 (:2) untuk suku berikutnya. Maka 12.5 &divide; 2 = 6.25."
+            },
+            {
+                q: "86. EKSTERNAL >< ...",
+                o: ["Luar", "Asing", "Internal", "Global", "Perbatasan"],
+                a: 2,
+                h: "Eksterna/Eksternal berarti segala sesuatu yang bersumber dari luar. Lawan katanya adalah Internal yang berarti bersumber dari dalam."
+            },
+            {
+                q: "87. KULIT - SEPATU = BENANG - ...",
+                o: ["Jarum", "Pakaian", "Kain", "Tenun", "Sutra"],
+                a: 2,
+                h: "Hubungan bahan baku: Kulit merupakan bahan baku utama untuk membuat sepatu. Secara berurutan, benang merupakan bahan baku utama untuk membuat kain."
+            },
+            {
+                q: "88. Sebagian mahasiswa tinggal di kost. Semua yang tinggal di kost memiliki kunci gerbang sendiri. Kesimpulan yang tepat adalah...",
+                o: ["Semua mahasiswa memiliki kunci gerbang sendiri", "Sebagian mahasiswa memiliki kunci gerbang sendiri", "Semua yang memiliki kunci gerbang adalah mahasiswa", "Mahasiswa tidak ada yang tinggal di kost", "Pemilik kost adalah mahasiswa"],
+                a: 1,
+                h: "Karena semua penghuni kost memiliki kunci gerbang, maka sebagian mahasiswa yang tinggal di kost tersebut otomatis juga memiliki kunci gerbang sendiri."
+            },
+            {
+                q: "89. Berapakah hasil nilai dari perkalian: 12 &times; 12 &times; 5?",
+                o: ["620", "700", "720", "740", "800"],
+                a: 2,
+                h: "Hitung berurutan: 12 &times; 12 = 144. Kemudian 144 &times; 5 = 720."
+            },
+            {
+                q: "90. Tentukan angka kelanjutan dari pola deret berikut: 1, 8, 27, 64, ...",
+                o: ["81", "100", "125", "150", "216"],
+                a: 2,
+                h: "Pola deret ini terbentuk dari barisan bilangan pangkat tiga (kubik):<br>1<sup>3</sup>=1, 2<sup>3</sup>=8, 3<sup>3</sup>=27, 4<sup>3</sup>=64.<br>Suku berikutnya adalah 5<sup>3</sup> = 125."
+            },
+            {
+                q: "91. AMBIGU = ...",
+                o: ["Jelas", "Bermakna ganda", "Pasti", "Satu arti", "Bingung"],
+                a: 1,
+                h: "Ambigu berarti mempunyai makna lebih dari satu sehingga menimbulkan ketidakjelasan atau keraguan; sinonimnya adalah Bermakna ganda."
+            },
+            {
+                q: "92. VAGANZA = ...",
+                o: ["Pertunjukan", "Pameran besar", "Perjalanan", "Perayaan indah", "Lomba"],
+                a: 3,
+                h: "Vaganza (serapan dari Italia/Inggris extravaganza) diartikan sebagai perayaan, pesta, atau pertunjukan yang dikemas secara megah, mewah, dan indah."
+            },
+            {
+                q: "93. PERMANEN >< ...",
+                o: ["Kekal", "Tetap", "Sementara", "Abadi", "Kuat"],
+                a: 2,
+                h: "Permanen artinya tetap, tidak berubah-ubah, atau berlangsung lama. Lawan katanya adalah Sementara."
+            },
+            {
+                q: "94. CAHAYA - TERANG = PANAS - ...",
+                o: ["Api", "Matahari", "Suhu", "Membara", "Gerah"],
+                a: 4,
+                h: "Hubungan kondisi sebab-akibat: Adanya cahaya mengakibatkan suasana menjadi terang. Adanya panas mengakibatkan kondisi tubuh/ruangan menjadi Gerah."
+            },
+            {
+                q: "95. Semua unggas bertelur. Burung elang adalah unggas. Kesimpulan yang tepat adalah...",
+                o: ["Burung elang tidak bertelur", "Burung elang bertelur", "Sebagian elang bertelur", "Semua yang bertelur adalah elang", "Elang adalah mamalia"],
+                a: 1,
+                h: "Melalui silogisme kategori standar, karena elang adalah bagian dari kelompok unggas, maka elang mengadopsi sifat umum unggas yaitu bertelur."
+            },
+            {
+                q: "96. Berapakah hasil penyederhanaan kalkulasi: (15 &times; 4) &divide; (6 - 4)?",
+                o: ["20", "25", "30", "35", "40"],
+                a: 2,
+                h: "Kerjakan operasi di dalam kurung terlebih dahulu:<br>(15 &times; 4) = 60<br>(6 - 4) = 2<br>Maka hasil pembagiannya adalah 60 &divide; 2 = 30."
+            },
+            {
+                q: "97. Tentukan kelanjutan pola deret angka berikut: 4, 9, 14, 19, 24, ...",
+                o: ["27", "28", "29", "30", "34"],
+                a: 2,
+                h: "Pola deret aritmatika ini memiliki beda selisih konstan berupa penambahan 5 (+5). Suku berikutnya adalah 24 + 5 = 29."
+            },
+            {
+                q: "98. Dari kata-kata berikut, manakah yang TIDAK termasuk kelompoknya?",
+                o: ["Januari", "Maret", "April", "Mei", "Juli"],
+                a: 2,
+                h: "Januari, Maret, Mei, dan Juli adalah bulan-bulan yang memiliki jumlah total 31 hari. Sedangkan April hanya memiliki 30 hari, sehingga ia keluar dari kelompok kesamaan sifat tersebut."
+            },
+            {
+                q: "99. KONTRA >< ...",
+                o: ["Lawan", "Setuju", "Pro", "Sesuai", "Dukung"],
+                a: 2,
+                h: "Kontra berarti menentang, menolak, atau tidak setuju. Lawan kata mutlak yang digunakan dalam forum perdebatan adalah Pro (memihak/mendukung)."
+            },
+            {
+                q: "100. LAUT - ASIN = GULA - ...",
+                o: ["Tebu", "Pasir", "Manis", "Semut", "Air"],
+                a: 2,
+                h: "Hubungan karakteristik rasa mutlak: Air laut memiliki rasa dasar asin, sebagaimana gula memiliki rasa dasar manis."
+            }
+        ]; // Akhir penutup data bank soal 100% utuh
+
+        // State Manajemen Logika Sistem Kuis
+        let currentIdx = 0;
+        let userAns = new Array(bank.length).fill(null);
+        let sisaWaktu = 45 * 60; // Durasi 45 menit pengerjaan dalam satuan detik
+        let timerId = null;
+
+        window.startUjian = function() {
+            const nama = document.getElementById('inName').value.trim();
+            if(!nama) {
+                alert("Silakan masukkan nama lengkap Anda terlebih dahulu!");
+                return;
+            }
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            
+            initGrid();
+            renderSoal();
+            startTimer();
+        };
+
+        function initGrid() {
+            const container = document.getElementById('grid-container');
+            container.innerHTML = "";
+            bank.forEach((_, i) => {
+                const item = document.createElement('div');
+                item.className = 'nav-grid-item';
+                item.id = `grid-no-${i}`;
+                item.innerText = i + 1;
+                item.onclick = () => lompatSoal(i);
+                container.appendChild(item);
+            });
+            updateGridState();
+        }
+
+        function updateGridState() {
+            bank.forEach((_, i) => {
+                const item = document.getElementById(`grid-no-${i}`);
+                if(!item) return;
+                item.className = 'nav-grid-item';
+                if(userAns[i] !== null) item.classList.add('answered');
+                if(i === currentIdx) item.classList.add('active');
+            });
+        }
+
+        function renderSoal() {
+            if(currentIdx < 0 || currentIdx >= bank.length) return;
+            
+            const data = bank[currentIdx];
+            document.getElementById('soal-title').innerText = `Soal No: ${currentIdx + 1} dari ${bank.length}`;
+            document.getElementById('q-text').innerHTML = data.q;
+            
+            const optContainer = document.getElementById('opt-container');
+            optContainer.innerHTML = "";
+            
+            data.o.forEach((opsi, index) => {
+                const letter = String.fromCharCode(65 + index);
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                if(userAns[currentIdx] === index) div.classList.add('selected');
+                
+                div.onclick = () => pilihJawaban(index);
+                div.innerHTML = `<div class="option-prefix">${letter}</div> <div>${opsi}</div>`;
+                optContainer.appendChild(div);
+            });
+
+            const progressPercent = ((currentIdx + 1) / bank.length) * 100;
+            document.getElementById('p-bar').style.width = `${progressPercent}%`;
+            
+            updateGridState();
+        }
+
+        function pilihJawaban(optIdx) {
+            userAns[currentIdx] = optIdx;
+            renderSoal();
+            
+            setTimeout(() => {
+                if(currentIdx < bank.length - 1) {
+                    currentIdx++;
+                    renderSoal();
+                }
+            }, 350);
+        }
+
+        window.prevSoal = function() {
+            if(currentIdx > 0) {
+                currentIdx--;
+                renderSoal();
+            }
+        };
+
+        window.nextSoal = function() {
+            if(currentIdx < bank.length - 1) {
+                currentIdx++;
+                renderSoal();
+            }
+        };
+
+        function lompatSoal(idx) {
+            currentIdx = idx;
+            renderSoal();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                if(sisaWaktu <= 0) {
+                    clearInterval(timerId);
+                    alert("Waktu pengerjaan habis!");
+                    hitungSkorDanSelesai();
+                } else {
+                    sisaWaktu--;
+                    const menit = Math.floor(sisaWaktu / 60);
+                    const detik = sisaWaktu % 60;
+                    document.getElementById('clock').innerText = `Sisa Waktu: ${menit.toString().padStart(2, '0')}:${detik.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        window.konfirmasiSelesai = function() {
+            const belumDijawab = userAns.filter(x => x === null).length;
+            let pesan = "Apakah Anda yakin ingin menyelesaikan tes?";
+            if(belumDijawab > 0) pesan = `Ada ${belumDijawab} soal kosong. ` + pesan;
+            
+            if(confirm(pesan)) {
+                clearInterval(timerId);
+                hitungSkorDanSelesai();
+            }
+        };
+
+        function hitungSkorDanSelesai() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            
+            let benar = 0;
+            let dHtml = "";
+            
+            bank.forEach((s, i) => {
+                if(userAns[i] === s.a) benar++;
+                
+                const statusKoreksi = (userAns[i] === s.a) 
+                    ? `<span class="correct-label">Jawaban Anda Benar (Skor +1)</span>`
+                    : `<span class="correct-label" style="background:#f8d7da; color:#721c24;">Jawaban Anda: ${userAns[i] !== null ? String.fromCharCode(65 + userAns[i]) : 'Kosong'} (Salah)</span>`;
+
+                dHtml += `
+                    <div class="teach-box">
+                        <p><b>SOAL NO ${i + 1}</b></p>
+                        <p style="font-size:18px; margin-bottom:12px;">${s.q}</p>
+                        <div style="margin-bottom:10px;">${statusKoreksi}</div>
+                        <span class="correct-label" style="background:#e2f0d9; color:#385723;">Kunci Jawaban Benar: ${String.fromCharCode(65 + s.a)}</span>
+                        <div class="teach-text"><b>Pembahasan:</b><br>${s.h}</div>
+                    </div>
+                `;
+            });
+            
+            const tgl = new Date();
+            document.getElementById('user-info').innerHTML = `
+                <b>Nama Peserta:</b> ${document.getElementById('inName').value}<br>
+                <b>Tanggal Pengerjaan:</b> ${tgl.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}<br>
+                <b>Waktu Selesai:</b> ${tgl.toLocaleTimeString('id-ID')} WIB
+            `;
+            
+            const nilaiAkhir = Math.round((benar / bank.length) * 100);
+            document.getElementById('score-big').innerText = "SKOR: " + nilaiAkhir;
+            document.getElementById('discussion-list').innerHTML = dHtml;
+            window.scrollTo(0, 0);
+        }
+
+        window.downloadPDF = function() {
+            const element = document.getElementById('pdf-content');
+            const opt = {
+                margin:       10,
+                filename:     'Hasil_Evaluasi_Kecerdasan_Persona.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        };
+    </script>
+</body>
+</html>
