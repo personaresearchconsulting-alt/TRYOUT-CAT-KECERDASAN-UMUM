@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="id" oncontextmenu="return false" onselectstart="return false" onkeydown="if(event.ctrlKey && (event.key==='c' || event.key==='u' || event.key==='i' || event.shiftKey)) return false">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>CAT PRESTASI — Persona Research & Consulting</title>
+    
+    <style>
+        :root { 
+            --primary: #0f172a; 
+            --primary-light: #1e293b;
+            --accent: #b45309; 
+            --gold: #d97706;
+            --gold-light: #fef3c7;
+            --bg: #f1f5f9; 
+            --surface: #ffffff;
+            --text: #334155; 
+            --text-dark: #0f172a;
+            --success: #15803d; 
+            --danger: #b91c1c; 
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-700: #334155;
+        }
+        
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; margin: 0; padding: 0; transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease; }
+        body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); line-height: 1.6; padding: 0; }
+        
+        .screen { display: none; opacity: 0; }
+        .screen.active { display: block; opacity: 1; animation: fadeIn 0.2s ease-in-out forwards; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .login-container { display: grid; grid-template-columns: 1.2fr 1fr; min-height: 100vh; background: #0f172a; }
+        .login-banner { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); position: relative; display: flex; flex-direction: column; justify-content: center; padding: 60px; color: #ffffff; overflow: hidden; }
+        .login-banner::before { content: ''; position: absolute; top: -20%; right: -20%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(217,119,6,0.08) 0%, transparent 70%); border-radius: 50%; }
+        .banner-brand h1 { font-size: 38px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(to right, #ffffff, #fcd34d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .banner-brand p { font-size: 16px; color: var(--gold); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px;}
+        .banner-tagline { font-size: 20px; margin-top: 40px; font-weight: 300; color: #cbd5e1; line-height: 1.4; }
+        .banner-tagline strong { color: #fff; font-weight: 600; }
+        
+        .info-widgets { margin-top: 50px; display: flex; flex-direction: column; gap: 15px; max-width: 450px; }
+        .widget-item { display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.03); padding: 15px 20px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); }
+        .widget-icon { font-size: 24px; }
+        .widget-text h4 { font-size: 14px; font-weight: 600; color: #f8fafc; }
+        .widget-text p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+        .login-form-side { background: #f8fafc; display: flex; align-items: center; justify-content: center; padding: 40px; }
+        .login-card { background: var(--surface); padding: 45px 40px; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 10px 10px -5px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
+        .form-header { margin-bottom: 35px; }
+        .form-header h2 { font-size: 22px; color: var(--primary); font-weight: 700; }
+        .form-header p { font-size: 14px; color: #64748b; margin-top: 5px; }
+
+        .input-group { position: relative; margin-bottom: 25px; }
+        .input-group input { width: 100%; padding: 16px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 16px; font-weight: 600; color: var(--primary); outline: none; background: transparent; }
+        .input-group label { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: var(--surface); padding: 0 6px; color: #64748b; font-size: 15px; font-weight: 500; pointer-events: none; transition: all 0.2s ease; }
+        .input-group input:focus, .input-group input:not(:placeholder-shown) { border-color: var(--gold); box-shadow: 0 0 12px rgba(217,119,6,0.15); }
+        .input-group input:focus ~ label, .input-group input:not(:placeholder-shown) ~ label { top: 0; font-size: 12px; color: var(--gold); font-weight: 700; }
+        
+        .btn-submit { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(15,23,42,0.2); }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(15,23,42,0.3); }
+
+        .loading-overlay { display: none; text-align: center; margin-top: 20px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--slate-200); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 14px; font-weight: 600; color: var(--slate-700); }
+
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .card { background: var(--surface); padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.03); border-top: 6px solid var(--gold); position: relative; margin-bottom: 25px; }
+        
+        @media(max-width:768px) { .login-container { grid-template-columns: 1fr; } .login-banner { display: none; } }
+        
+        .meta-list { list-style: none; }
+        .meta-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--slate-200); font-size: 13px; }
+        .meta-list li span:first-child { font-weight: 600; color: #64748b; }
+        .meta-list li span:last-child { font-weight: 700; color: var(--primary); }
+
+        .pro-header-fixed { background: var(--primary); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px; }
+        .pro-header-meta { display: flex; gap: 20px; font-size: 13px; }
+        .pro-header-meta div span { color: #94a3b8; display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; }
+        .pro-header-meta div strong { font-size: 14px; color: #fff; }
+        
+        .progress-container { background: #e2e8f0; height: 8px; border-radius: 4px; margin-bottom: 20px; overflow: hidden; position: relative; }
+        .progress-bar { background: linear-gradient(90deg, var(--gold), var(--accent)); width: 0%; height: 100%; transition: width 0.2s ease; }
+        
+        .status-panel-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; background: #f8fafc; padding: 10px; border-radius: 10px; border: 1px solid var(--slate-200); }
+        .status-pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; background: #fff; border: 1px solid var(--slate-200); color: var(--slate-700); }
+        .status-pill span { color: var(--gold); }
+
+        .test-header-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+        .q-num { color: var(--gold); font-weight: 700; font-size: 16px; }
+        .timer-badge { background: #fef2f2; border: 1px solid #fee2e2; padding: 6px 14px; border-radius: 8px; color: var(--danger); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
+        
+        .q-text { font-size: 18px; font-weight: 600; color: var(--text-dark); margin-bottom: 20px; min-height: 60px; }
+        
+        .opt { display: flex; align-items: center; padding: 14px 18px; margin-bottom: 10px; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; background: #fff; }
+        .opt:hover { background: #fafafa; border-color: #cbd5e1; transform: translateX(3px); }
+        .opt.selected { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateX(3px); }
+        .opt-prefix { font-weight: 700; margin-right: 15px; background: #f1f5f9; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 13px; color: var(--text); flex-shrink: 0; }
+        .opt.selected .opt-prefix { background: rgba(255,255,255,0.2); color: #fff; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-secondary { background: #e2e8f0; color: var(--text-dark); }
+        .btn-secondary:hover { background: #cbd5e1; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-flag { background: #f59e0b; color: white; }
+        .btn-pdf { background: #0284c7; color: white; padding: 10px 20px; font-size: 14px; margin: 10px 0; width: 100%; max-width: 250px; height: auto; }
+        .btn-pdf:hover { background: #0369a1; }
+        .flex-1 { flex: 1; }
+        
+        .bottom-nav-box { margin-top: 25px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+        .nav-title { font-size: 12px; text-transform: uppercase; margin-bottom: 10px; color: #64748b; font-weight: 700; }
+        .nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(32px, 1fr)); gap: 6px; background: #f1f5f9; padding: 10px; border-radius: 10px; max-height: 120px; overflow-y: auto; }
+        .nav-item { height: 32px; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--text); }
+        .nav-item:hover { border-color: var(--gold); }
+        .nav-item.filled-done { background: var(--primary-light); border-color: var(--primary-light); color: white; }
+        .nav-item.flagged { background: #f59e0b !important; border-color: #d97706 !important; color: white !important; }
+        .nav-item.active { border: 2px solid var(--gold) !important; box-shadow: 0 0 6px rgba(217,119,6,0.3); font-weight: 800; }
+        
+        .review-section { margin-bottom: 20px; text-align: left; }
+        .review-list-nums { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; background: var(--slate-100); padding: 15px; border-radius: 10px; }
+        
+        .analytics-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12px; text-align: left; }
+        .analytics-table th, .analytics-table td { padding: 6px 8px; border-bottom: 1px solid var(--slate-200); }
+        .analytics-table th { background: var(--primary); color: white; font-weight: 600; }
+        .analytics-table tr:hover { background: var(--slate-100); }
+        
+        .profile-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 6px; border: 1px solid var(--slate-200); font-size: 13px; }
+        .profile-stars { color: #eab308; font-weight: bold; letter-spacing: 2px; }
+        
+        .dx-box { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #cbd5e1; text-align: left; font-size: 13px; }
+        .dx-box.strength { background: #f0fdf4; border-left-color: var(--success); color: #14532d; }
+        .dx-box.weakness { background: #fef2f2; border-left-color: var(--danger); color: #7f1d1d; }
+        .dx-box.info { background: #f0f9ff; border-left-color: #0284c7; color: #0c4a6e; }
+        
+        .timeline-container { position: relative; padding-left: 15px; border-left: 2px solid var(--slate-200); text-align: left; margin: 10px 0; font-size: 13px; }
+        .timeline-item { position: relative; margin-bottom: 8px; }
+        .timeline-item::before { content: ''; position: absolute; left: -21px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+        
+        .analysis-box { margin-top: 15px; text-align: left; }
+        .analysis-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border-left: 5px solid #cbd5e1; gap: 8px; }
+        .analysis-item.is-correct { border-left-color: var(--success); }
+        .analysis-item.is-wrong { border-left-color: var(--danger); }
+        .status-indicator { display: inline-block; padding: 2px 6px; font-size: 10px; font-weight: 700; border-radius: 4px; margin-bottom: 6px; text-transform: uppercase; }
+        .status-indicator.correct { background: #f0fdf4; color: var(--success); }
+        .status-indicator.wrong { background: #fef2f2; color: var(--danger); }
+        .explanation-text { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #475569; margin-top: 8px; line-height: 1.45; }
+        
+        .toast-info { position: fixed; bottom: 20px; left: 20px; background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); display: none; z-index: 9999; }
+        .score-badge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 5px 0; font-family: monospace; }
+        .app-footer { text-align: center; padding: 20px; font-size: 12px; color: #64748b; background: #f1f5f9; border-top: 1px solid #e2e8f0; margin-top: 25px; }
+        
+        @media print {
+            body { background: #fff; color: #000; }
+            .screen { display: none !important; }
+            .screen#result-screen { display: block !important; }
+            .card { border: none; box-shadow: none; padding: 0; }
+            .btn, .app-footer, .btn-pdf, .bottom-nav-box { display: none !important; }
+            .analysis-item { page-break-inside: avoid; background: #fff; border: 1px solid #ccc; }
+            .explanation-text { background: #fff; border: none; padding: 5px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-banner">
+                <div class="banner-brand">
+                    <h1>CAT PRESTASI</h1>
+                    <p>Persona Research & Consulting</p>
+                </div>
+                <p class="banner-tagline">
+                    Selamat datang di portal simulasi ujian berbasis komputer resmi. Silakan isi identitas Anda dengan benar untuk mengukur kompetensi dan <strong>meraih prestasi terbaik</strong>.
+                </p>
+                <div class="info-widgets">
+                    <div class="widget-item">
+                        <span class="widget-icon">⏱️</span>
+                        <div class="widget-text">
+                            <h4>Alokasi Waktu Efektif</h4>
+                            <p>Waktu pengerjaan dibatasi tepat 90 menit sejak tombol mulai ditekan.</p>
+                        </div>
+                    </div>
+                    <div class="widget-item">
+                        <span class="widget-icon">💾</span>
+                        <div class="widget-text">
+                            <h4>Proteksi Sesi (Penyimpanan Otomatis)</h4>
+                            <p>Jawaban aman disimpan secara berkala. Jika halaman tidak sengaja ter-refresh, progres tidak akan hilang.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="login-form-side">
+                <div class="login-card">
+                    <div class="form-header">
+                        <h2>Autentikasi Peserta</h2>
+                        <p>Mulai pengerjaan kuis evaluasi Anda.</p>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="username" placeholder=" " autocomplete="off">
+                        <label>Nama Lengkap Peserta</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="part_number" placeholder=" " autocomplete="off">
+                        <label>Nomor Peserta (Opsional)</label>
+                    </div>
+                    <button class="btn-submit" id="btn-login-action" onclick="triggerFastAuthentication()">MULAI TES</button>
+                    
+                    <div class="loading-overlay" id="loading-box">
+                        <div class="spinner"></div>
+                        <div class="loading-text" id="loading-msg">Memeriksa sistem...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="test-screen" class="screen container">
+        <div class="pro-header-fixed">
+            <div class="pro-header-meta">
+                <div><span>Peserta</span><strong id="hdr-name">-</strong></div>
+                <div><span>Nomor</span><strong id="hdr-id">-</strong></div>
+            </div>
+            <div class="pro-header-meta">
+                <div><span>Posisi Soal</span><strong id="hdr-qindex">-</strong></div>
+                <div><span>Kemajuan Pengerjaan</span><strong id="hdr-pct">0%</strong></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="test-header-meta">
+                <span class="q-num" id="q-num">SOAL NO. -</span>
+                <div class="timer-badge" id="timer">90:00</div>
+            </div>
+            
+            <div class="status-panel-row">
+                <div class="status-pill">Terjawab: <span id="p-answered">0</span></div>
+                <div class="status-pill">Belum Dijawab: <span id="p-left">0</span></div>
+                <div class="status-pill">Ditandai: <span id="p-flagged" style="color:var(--danger)">0</span></div>
+                <div class="status-pill" style="margin-left:auto; font-size:11px; background:#f0fdf4; border-color:#bbf7d0; color:#166534;">Penyimpanan Otomatis Aktif</div>
+            </div>
+            
+            <div id="q-area">
+                <div id="q-text" class="q-text">Memuat pertanyaan...</div>
+                <div id="options-container"></div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="changeQ(-1)">◀ KEMBALI</button>
+                <button class="btn btn-flag" onclick="toggleFlag()">🚩 TANDAI SOAL</button>
+                <button class="btn btn-primary flex-1" onclick="changeQ(1)">SELANJUTNYA / LEWATI ▶</button>
+                <button class="btn btn-danger" onclick="navigateToReviewPage()">EVALUASI AKHIR (REVIEW)</button>
+            </div>
+            
+            <div class="bottom-nav-box">
+                <div class="nav-title">Indeks Lembar Jawaban</div>
+                <div class="nav-grid" id="nav-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="review-screen" class="screen container">
+        <div class="card" style="text-align:left;">
+            <h2 style="font-size:22px; color:var(--primary); border-bottom:2px solid var(--slate-200); padding-bottom:10px; margin-bottom:20px;">Lembar Konfirmasi Rekapitulasi Jawaban</h2>
+            
+            <div class="status-panel-row" style="background:#fff; padding:0; border:none; gap:15px; margin-bottom:25px;">
+                <div class="card flex-1" style="padding:15px; border-top:4px solid var(--primary); margin:0;">
+                    <div style="font-size:12px; font-weight:700; color:#64748b;">TOTAL SOAL</div>
+                    <div style="font-size:28px; font-weight:800;" id="rev-total">0</div>
+                </div>
+                <div class="card flex-1" style="padding:15px; border-top:4px solid var(--success); margin:0;">
+                    <div style="font-size:12px; font-weight:700; color:#64748b;">SUDAH DIJAWAB</div>
+                    <div style="font-size:28px; font-weight:800; color:var(--success);" id="rev-done">0</div>
+                </div>
+                <div class="card flex-1" style="padding:15px; border-top:4px solid var(--danger); margin:0;">
+                    <div style="font-size:12px; font-weight:700; color:#64748b;">BELUM DIJAWAB</div>
+                    <div style="font-size:28px; font-weight:800; color:var(--danger);" id="rev-empty">0</div>
+                </div>
+                <div class="card flex-1" style="padding:15px; border-top:4px solid #f59e0b; margin:0;">
+                    <div style="font-size:12px; font-weight:700; color:#64748b;">DITANDAI</div>
+                    <div style="font-size:28px; font-weight:800; color:#d97706;" id="rev-flag">0</div>
+                </div>
+            </div>
+
+            <div class="review-section">
+                <h4 style="font-size:14px; color:var(--danger);">⚠️ Daftar Nomor Belum Diisi:</h4>
+                <div id="rev-list-empty" class="review-list-nums">— Tidak Ada</div>
+            </div>
+
+            <div class="review-section" style="margin-top:20px;">
+                <h4 style="font-size:14px; color:#d97706;">🚩 Daftar Nomor Ditandai Ragu-Ragu:</h4>
+                <div id="rev-list-flag" class="review-list-nums">— Tidak Ada</div>
+            </div>
+
+            <div class="btn-group" style="margin-top:40px;">
+                <button class="btn btn-secondary" onclick="backToTestFromReview()">◀ KEMBALI KE SOAL</button>
+                <button class="btn btn-danger flex-1" style="background:var(--success); font-size:15px;" onclick="executeFinalCalculationsSubmit()">KUNCI JAWABAN & SIMPAN NILAI ✔</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" class="screen container">
+        <div class="card" style="text-align: center; padding: 15px;">
+            <div class="brand" style="text-align:center; margin-bottom:12px;">
+                <h1 style="font-size: 22px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; font-weight: 800;">HASIL EVALUASI</h1>
+                <p style="font-size: 13px; color: var(--gold); font-weight: 600; text-transform: uppercase; margin-top: 2px;">Persona Research & Consulting</p>
+            </div>
+            
+            <div style="background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 12px; display: inline-block; min-width: 220px;">
+                <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #64748b;">Identitas Peserta</p>
+                <h2 id="res-name" style="color: var(--primary); font-size: 18px; margin-top: 2px;">-</h2>
+                <p style="font-size:10px; font-family:monospace; margin-top:2px;" id="res-meta-session">ID Sesi: -</p>
+            </div>
+            
+            <div style="margin-bottom:12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="background:var(--slate-100); padding:12px; border-radius:10px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                    <p style="font-weight: 700; font-size: 13px; color: var(--text);">SKOR AKHIR</p>
+                    <div class="score-badge" id="score-val">0</div>
+                    <div style="font-size:16px; font-weight:800; text-transform:uppercase;" id="res-predikat-label">PREDIKAT: <span id="res-predikat">-</span></div>
+                </div>
+                <div style="text-align:left;">
+                    <h3 style="font-size:12px; text-transform:uppercase; margin-bottom:3px; color:#64748b;">Statistik Pengerjaan</h3>
+                    <ul class="meta-list">
+                        <li><span>Jawaban Benar</span><span id="r-stat-c" style="color:var(--success);">-</span></li>
+                        <li><span>Jawaban Salah</span><span id="r-stat-w" style="color:var(--danger);">-</span></li>
+                        <li><span>Kosong</span><span id="r-stat-e">-</span></li>
+                        <li><span>Persentase Akurasi</span><span id="r-stat-pct">-</span></li>
+                        <li><span>Total Waktu</span><span id="r-stat-time">-</span></li>
+                        <li><span>Rata-Rata per Soal</span><span id="r-stat-avg">-</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="text-align:left; margin-bottom:12px; background:var(--slate-100); padding:10px; border-radius:8px;">
+                <h3 style="font-size:12px; text-transform:uppercase; margin-bottom:6px; color:var(--primary);">📊 Analisis Waktu</h3>
+                <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;">
+                    <div style="background:#fff; padding:6px 10px; border-radius:6px; font-size:12px;">Soal Tercepat: <strong id="time-fastest">-</strong></div>
+                    <div style="background:#fff; padding:6px 10px; border-radius:6px; font-size:12px;">Soal Terlama: <strong id="time-slowest">-</strong></div>
+                    <div style="background:#fff; padding:6px 10px; border-radius:6px; font-size:12px;">Konsistensi Waktu: <strong id="time-consistency" style="color:var(--success);">-</strong></div>
+                    <div style="background:#fff; padding:6px 10px; border-radius:6px; font-size:12px;">Status Kecepatan: <strong id="time-pace-status">-</strong></div>
+                </div>
+            </div>
+
+            <div style="text-align:left; margin-bottom:12px;">
+                <h3 style="font-size:12px; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">🕒 Timeline Pengerjaan</h3>
+                <div class="timeline-container" id="timeline-box"></div>
+            </div>
+
+            <div style="text-align:left; margin-bottom:12px;">
+                <h3 style="font-size:12px; text-transform:uppercase; color:var(--primary); margin-bottom:4px;">📋 Analisis per Kategori & Subkategori</h3>
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Kategori</th>
+                            <th>Subkategori</th>
+                            <th>Jumlah Soal</th>
+                            <th>Benar</th>
+                            <th>Salah</th>
+                            <th>Kosong</th>
+                            <th>Akurasi</th>
+                            <th>Rata-rata Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="category-table-body"></tbody>
+                </table>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; text-align:left; margin-bottom:12px;">
+                <div>
+                    <h3 style="font-size:12px; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">⭐ Profil Kemampuan</h3>
+                    <div id="star-profile-box"></div>
+                </div>
+                <div>
+                    <h3 style="font-size:12px; text-transform:uppercase; color:var(--primary); margin-bottom:6px;">🧠 Kesimpulan Diagnosis</h3>
+                    <div class="dx-box info" id="dx-summary-text" style="margin-bottom:0;">Memproses kesimpulan otomatis...</div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; text-align:left; margin-bottom:12px;">
+                <div class="dx-box strength" style="margin-bottom:0;">
+                    <h4 style="font-weight:700; margin-bottom:3px;">🎯 KEKUATAN PESERTA</h4>
+                    <div id="dx-strength-list">-</div>
+                </div>
+                <div class="dx-box weakness" style="margin-bottom:0;">
+                    <h4 style="font-weight:700; margin-bottom:3px;">⚠️ KATEGORI YANG PERLU DITINGKATKAN</h4>
+                    <div id="dx-weakness-list">-</div>
+                </div>
+            </div>
+
+            <div style="background:#fff; border:1px solid var(--slate-200); border-radius:10px; padding:12px; text-align:left; margin-bottom:15px;">
+                <h4 style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:4px;">🚀 PRIORITAS BELAJAR & REKOMENDASI LATIHAN</h4>
+                <div style="font-size:13px; color:#475569; line-height:1.5;" id="res-recommendation-box">Memuat prioritas pengerjaan...</div>
+            </div>
+
+            <button class="btn btn-pdf" onclick="window.print()">🖨️ CETAK / SIMPAN PDF HASIL</button>
+            
+            <h3 style="font-size:14px; text-transform:uppercase; color:var(--primary); margin:20px 0 10px; text-align:left; border-bottom:2px solid var(--slate-200); padding-bottom:6px;">🔍 Analisis Pembahasan Detail per Soal</h3>
+            <div class="analysis-box" id="analysis-container"></div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-info" id="toast-recovery">🔄 Sesi pengerjaan sebelumnya berhasil dipulihkan secara otomatis!</div>
+
+<footer class="app-footer">
+    &copy; 2026 Persona Research & Consulting. All Rights Reserved. Computer Assisted Test Platform.
+</footer>
+
+<script>
+    // BANK DATA SOAL ASLI
+    const rawData = [
+        {"id": 1, "category": "Verbal", "subCategory": "Antonim", "difficulty": "Mudah", "estimatedTime": 45, "q": "Rabun >< ...", "o": ["Tajam", "Terang", "Tepat", "Jelas", "Samar"], "a": 3, "exp": "Rabun berarti tidak dapat melihat dengan jelas atau kabur. Lawan kata (antonim) yang paling tepat dan mutlak dari kata rabun adalah Jelas."},
+        {"id": 2, "category": "Verbal", "subCategory": "Sinonim", "difficulty": "Mudah", "estimatedTime": 45, "q": "Kisi-kisi = ...", "o": ["Alat menangkap ikan", "Pola kotak bersilang", "Alat hitung tradisional", "Mata pisau", "Keranjang bambu"], "a": 1, "exp": "Kisi-kisi atau teralis diartikan secara bahasa sebagai pola jaringan atau kotak bersilang dari kayu, bambu, atau besi."},
+        {"id": 3, "category": "Verbal", "subCategory": "Sinonim", "difficulty": "Mudah", "estimatedTime": 45, "q": "Boga = ...", "o": ["Pakaian adat", "Seni lukis", "Makanan nikmat", "Rumah ibadah", "Tarian tradisional"], "a": 2, "exp": "Istilah boga berkaitan erat dengan ilmu kuliner, masakan, santapan, atau makanan kenikmatan secara harfiah."},
+        {"id": 4, "category": "Verbal", "subCategory": "Sinonim", "difficulty": "Mudah", "estimatedTime": 45, "q": "Anjung = ...", "o": ["Dayung", "Panggung", "Buyung", "Puji", "Angkat"], "a": 1, "exp": "Anjung atau anjungan diartikan sebagai bagian rumah (panggung) atau struktur bangunan yang posisinya lebih tinggi atau menonjol ke depan."},
+        {"id": 5, "category": "Verbal", "subCategory": "Antonim", "difficulty": "Sedang", "estimatedTime": 45, "q": "Surai >< ...", "o": ["Bubar", "Usai", "Purna", "Berhimpun", "Akhir"], "a": 3, "exp": "Surai berarti cerai-berai, bubar, atau usai. Kebalikan atau lawan kata dari kondisi cerai-berai/bubar adalah Berhimpun."},
+        {"id": 6, "category": "Verbal", "subCategory": "Sinonim", "difficulty": "Mudah", "estimatedTime": 45, "q": "Kisi-kisi = ...", "o": ["Pancingan", "Kalkulator", "Teralis", "Tabel", "Kinerja"], "a": 2, "exp": "Kisi-kisi identik dengan struktur kayu/besi pembatas bersilang yang disebut juga sebagai Teralis."},
+        {"id": 7, "category": "Verbal", "subCategory": "Sinonim", "difficulty": "Sedang", "estimatedTime": 60, "q": "Gancu = ...", "o": ["Karung", "Timbangan", "Pengait", "Palu", "Parang"], "a": 2, "exp": "Gancu merupakan alat berupa batang besi yang ujungnya melengkung lancip dan digunakan sebagai Pengait demi menarik karung atau barang berat."},
+        {"id": 8, "category": "Logika", "subCategory": "Silogisme", "difficulty": "Sedang", "estimatedTime": 60, "q": "Semua mamalia menyusui anaknya. Paus adalah mamalia. Maka ....", "o": ["Paus tidak bertelur", "Paus menyusui anaknya", "Paus hidup di air", "Semua paus adalah mamalia laut", "Paus bukan ikan laut"], "a": 1, "exp": "Silogisme modus ponens standar: Premis 1 (Semua M memiliki sifat S), Premis 2 (P adalah bagian dari M). Kesimpulan mutlak: P memiliki sifat S (Paus menyusui anaknya)."},
+        {"id": 9, "category": "Logika", "subCategory": "Silogisme", "difficulty": "Sedang", "estimatedTime": 60, "q": "Sebagian mahasiswa menguasai bahasa asing. Semua yang menguasai bahasa asing lulus ujian internasional. Kesimpulannya ....", "o": ["Semua mahasiswa lulus ujian internasional", "Sebagian mahasiswa lulus ujian internasional", "Mahasiswa tidak lulus ujian", "Hanya mahasiswa asing yang lulus", "Tidak ada mahasiswa lulus ujian internasional"], "a": 1, "exp": "Penggabungan partikular dan universal menghasilkan kesimpulan partikular: Sebagian mahasiswa lulus ujian internasional."},
+        {"id": 10, "category": "Logika", "subCategory": "Analogi", "difficulty": "Mudah", "estimatedTime": 45, "q": "Mobil : Bensin = Pelari : ....", "o": ["Sepatu lintasan", "Makanan/Energi", "Garis finish", "Peluit wasit", "Kaos olahraga"], "a": 1, "exp": "Hubungan sumber daya fungsional utama: Mobil memerlukan bensin sebagai sumber energi gerak dasar, analog dengan Pelari yang membutuhkan Makanan/Energi untuk bergerak."},
+        {"id": 11, "category": "Logika", "subCategory": "Analogi", "difficulty": "Mudah", "estimatedTime": 45, "q": "Padi : Petani = Puisi : ....", "o": ["Musik", "Sutradara", "Penyair", "Koran", "Perpustakaan"], "a": 2, "exp": "Hubungan pencipta produk: Padi ditanam dan diproduksi secara khas oleh Petani, setara dengan karya Puisi yang ditulis oleh seorang Penyair."},
+        {"id": 12, "category": "Logika", "subCategory": "Analogi", "difficulty": "Sedang", "estimatedTime": 60, "q": "Pemerintah : Perpu = MPR/DPR : ....", "o": ["Ketetapan MPR", "Undang-Undang (UU)", "Peraturan Daerah", "Nota Keuangan", "Hukum Adat"], "a": 1, "exp": "Hubungan kewenangan dalam pembuatan aturan hukum formal: Pemerintah bertugas menerbitkan Perpu (dalam keadaan genting), setara dengan lembaga MPR/DPR yang bertugas menyusun dan menetapkan Undang-Undang (UU)."},
+        {"id": 13, "category": "Logika", "subCategory": "Analogi", "difficulty": "Sedang", "estimatedTime": 60, "q": "Otonomi : Mandiri = ....", "o": ["Kartu VGA : Perangkat keras", "Shampo : Mandi", "Cerdas : Banyak akal", "BBM : Mesin bermotor", "Warga : Komunitas"], "a": 2, "exp": "Hubungan kesamaan sifat (sinonim kiasan): Otonomi dicirikan dengan kondisi Mandiri, sama seperti orang Cerdas yang dicirikan dengan karakteristik Banyak akal."},
+        {"id": 14, "category": "Logika", "subCategory": "Analogi", "difficulty": "Mudah", "estimatedTime": 45, "q": "Rokok : Asbak = Air : ....", "o": ["Selang panjang", "Pembuangan", "Ember", "Shower", "Saluran"], "a": 2, "exp": "Hubungan wadah penampung stasioner: Asbak digunakan sebagai tempat menampung sisa/batang rokok, setara dengan Ember yang merupakan wadah stasioner umum penampung Air."},
+        {"id": 15, "category": "Numerik", "subCategory": "Geometri", "difficulty": "Sulit", "estimatedTime": 90, "q": "Luas jalan kebun (panjang 20m, lebar 10m) selebar 2m di sekeliling luar kebun adalah ... m2", "o": ["120", "136", "144", "152", "160"], "a": 1, "exp": "Kebun lama memiliki p=20, l=10. Luas awal = 200. Ditambah jalan selebar 2 meter di semua sisi luar, maka p_baru = 20 + 2 + 2 = 24m, dan l_baru = 10 + 2 + 2 = 14m. Luas total baru = 24 x 14 = 336. Luas jalan = 336 - 200 = 136 m2."},
+        {"id": 16, "category": "Numerik", "subCategory": "Deret Angka", "difficulty": "Mudah", "estimatedTime": 45, "q": "2, 4, 8, 16, 32, .... Berapa angka selanjutnya?", "o": ["48", "60", "64", "72", "128"], "a": 2, "exp": "Pola deret geometri konstan dengan rasio perkalian 2 secara berurutan: 32 x 2 = 64."},
+        {"id": 17, "category": "Numerik", "subCategory": "Deret Angka", "difficulty": "Sedang", "estimatedTime": 60, "q": "3, 5, 9, 17, 33, .... Berapa deret berikutnya?", "o": ["50", "65", "66", "70", "80"], "a": 1, "exp": "Pola penambahan berlipat ganda: +2, +4, +8, +16, maka berikutnya adalah +32. Sehingga 33 + 32 = 65."},
+        {"id": 18, "category": "Numerik", "subCategory": "Aritmatika", "difficulty": "Mudah", "estimatedTime": 45, "q": "9 x 2 x 7 - 65 - 40 = ....", "o": ["133", "-133", "21", "24", "121"], "a": 2, "exp": "Lakukan operasi perkalian terlebih dahulu: 9 x 2 x 7 = 126. Kemudian kurangkan secara berurutan: 126 - 65 - 40 = 21."},
+        {"id": 19, "category": "Numerik", "subCategory": "Aritmatika", "difficulty": "Sedang", "estimatedTime": 45, "q": "455 x 45 : 455 - 3 = ....", "o": ["-11", "42", "24", "43", "45"], "a": 1, "exp": "Operasi pembagian dan perkalian didahulukan. Nilai (455 / 455) saling mengeliminasi menjadi 1. Sisa persamaan menjadi 45 - 3 = 42."},
+        {"id": 20, "category": "Numerik", "subCategory": "Aljabar", "difficulty": "Sulit", "estimatedTime": 120, "q": "X rupiah dibagi n orang (180rb), jika ditambah 2 orang menjadi 150rb. Berapa total uang X?", "o": ["1.340.000", "1.370.000", "1.800.000", "1.890.000", "1.980.400"], "a": 2, "exp": "Persamaan: X = 180.000n dan X = 150.000(n + 2). Maka 180.000n = 150.000n + 300.000 -> 30.000n = 300.000 -> n = 10 orang. Total uang X = 180.000 x 10 = 1.800.000 rupiah."},
+        {"id": 21, "category": "Numerik", "subCategory": "Peluang", "difficulty": "Sulit", "estimatedTime": 90, "q": "Dua buah dadu dilempar undi bersamaan satu kali. Peluang muncul jumlah mata dadu 9 atau 11 adalah?", "o": ["1/6", "1/4", "1/2", "1/9", "1/12"], "a": 0, "exp": "Total ruang sampel n(S) = 36. Kejadian mata dadu berjumlah 9: (3,6), (4,5), (5,4), (6,3) -> ada 4. Kejadian mata dadu berjumlah 11: (5,6), (6,5) -> ada 2. Total kejadian n(A) = 4 + 2 = 6. Peluang P(A) = 6/36 = 1/6."},
+        {"id": 22, "category": "Ketelitian", "subCategory": "Koreksi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Pilihlah penulisan kata baku yang tepat menurut PUEBI/KBBI:", "o": ["Apotik", "Analisa", "Pertanggung jawaban", "Aktivitas", "Kwitansi"], "a": 3, "exp": "Kata baku yang tepat adalah Aktivitas (menggunakan huruf 'v' bukan 'f'). Bentuk baku lainnya seharusnya Apotek, Analisis, Pertanggungjawaban (digabung), dan Kuitansi."},
+        {"id": 23, "category": "Ketelitian", "subCategory": "Koreksi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Manakah kata yang baku?", "o": ["Izin", "Ijin", "Idzin", "Isin", "Ijien"], "a": 0, "exp": "Berdasarkan Kamus Besar Bahasa Indonesia (KBBI), penulisan kata serapan yang baku dan valid adalah Izin."},
+        {"id": 24, "category": "Ketelitian", "subCategory": "Klasifikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Manakah kata yang tidak masuk ke dalam kelompok jenis pekerjaan manual?", "o": ["Menenun", "Menganyam", "Mengecat", "Memahat", "Membaca"], "a": 4, "exp": "Membaca merupakan aktivitas kognitif murni yang tidak menghasilkan objek fisik kriya secara manual menggunakan tangan langsung, berbeda dengan Menenun, Menganyam, Memahat, atau Mengecat."},
+        {"id": 25, "category": "Ketelitian", "subCategory": "Klasifikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bukan kesamaan kelompok kata: Lumpur, Bedak, Abu, Debu, Pasir", "o": ["Lumpur", "Bedak", "Abu", "Debu", "Pasir"], "a": 0, "exp": "Bedak, Abu, Debu, dan Pasir merupakan materi yang berwujud partikel padat kering/serbuk dalam keadaan normal. Sedangkan Lumpur merupakan zat campuran basah/cair."},
+        {"id": 26, "category": "Ketelitian", "subCategory": "Klasifikasi", "difficulty": "Sedang", "estimatedTime": 45, "q": "Bukan kesamaan kelompok kata: Mengukus, Menempa, Mengelas, Melelehkan, Membubut", "o": ["Mengukus", "Menempa", "Mengelas", "Melelehkan", "Membubut"], "a": 0, "exp": "Menempa, Mengelas, Melelehkan, dan Membubut merupakan metode pengerjaan atau modifikasi mekanis pada material keras logam/baja industri. Sedangkan Mengukus adalah teknik pematangan kuliner bahan pangan."},
+        {"id": 27, "category": "Ketelitian", "subCategory": "Klasifikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Mana yang berbeda? Singa, Macan, Harimau, Serigala, Kucing", "o": ["Singa", "Macan", "Harimau", "Serigala", "Kucing"], "a": 3, "exp": "Singa, Macan, Harimau, dan Kucing berada dalam rumpun keluarga felidae (kucing-kucingan). Sedangkan Serigala termasuk dalam keluarga canidae (anjing-anjingan)."},
+        {"id": 28, "category": "Spatial", "subCategory": "Rotasi 3D", "difficulty": "Sedang", "estimatedTime": 60, "q": "Jika kubus dengan huruf berurutan alas A, atas F diputar ke kanan 90 derajat, posisi depan menjadi ...", "o": ["Kanan", "Belakang", "Kiri", "Atas", "Bawah"], "a": 2, "exp": "Rotasi ortogonal koordinat kartesius: Sumbu putar vertikal searah jarum jam sejauh 90 derajat memindahkan posisi bidang sisi 'Depan' awal menuju koordinat sisi sebelah 'Kiri'."},
+        {"id": 29, "category": "Spatial", "subCategory": "Pola Gambar", "difficulty": "Sedang", "estimatedTime": 45, "q": "Pola deret visual: Segitiga, Segiempat, Segilima, .... Gambar selanjutnya adalah?", "o": ["Lingkaran", "Segienam", "Bintang", "Garis lurus", "Kubus berpola"], "a": 1, "exp": "Pola pertumbuhan aritmatika geometri dua dimensi (2D) berdasarkan jumlah total rusuk/sudut luar: +1 sisi konstan (3, 4, 5, maka berikutnya adalah 6 sudut / Segienam)."},
+        {"id": 30, "category": "Spatial", "subCategory": "Pola Gambar", "difficulty": "Sedang", "estimatedTime": 45, "q": "Sebuah tanda panah menunjuk ke Utara, lalu Timur, lalu Selatan. Selanjutnya menunjuk ke?", "o": ["Barat", "Barat Laut", "Timur Laut", "Tenggara", "Barat Daya"], "a": 0, "exp": "Perputaran searah jarum jam (90 derajat bertahap): Utara -> Timur -> Selatan -> Barat."},
+        {"id": 31, "category": "Wawasan", "subCategory": "Pancasila", "difficulty": "Mudah", "estimatedTime": 45, "q": "Sila ke-4 Pancasila dilambangkan oleh lambang negara berupa?", "o": ["Bintang Emas", "Rantai Baja", "Pohon Beringin", "Kepala Banteng", "Padi dan Kapas"], "a": 3, "exp": "Sila ke-4 'Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan' disimbolkan secara resmi oleh gambar Kepala Banteng."},
+        {"id": 32, "category": "Wawasan", "subCategory": "Pancasila", "difficulty": "Sedang", "estimatedTime": 45, "q": "Menghormati hak orang lain dan bersikap adil merupakan pengamalan Pancasila sila ke?", "o": ["1", "2", "3", "4", "5"], "a": 4, "exp": "Sikap adil, menjaga keseimbangan hak-kewajiban, dan menghormati hak milik orang lain adalah butir implementasi otentik Sila ke-5 (Keadilan Sosial bagi Seluruh Rakyat Indonesia)."},
+        {"id": 33, "category": "Wawasan", "subCategory": "UUD 1945", "difficulty": "Sedang", "estimatedTime": 45, "q": "Pasal berapakah dalam UUD 1945 asli yang mengatur mengenai hak warga negara untuk mendapatkan pendidikan formal?", "o": ["Pasal 27", "Pasal 29", "Pasal 30", "Pasal 31", "Pasal 33"], "a": 3, "exp": "Hak atas pendidikan bagi setiap warga negara diatur eksplisit dan mendasar dalam tata hukum konstitusi Pasal 31 UUD 1945."},
+        {"id": 34, "category": "Wawasan", "subCategory": "UUD 1945", "difficulty": "Sedang", "estimatedTime": 45, "q": "Lembaga negara baru yang dibentuk pasca amandemen UUD 1945 yang bertugas menguji UU terhadap UUD adalah?", "o": ["MA", "MK", "KY", "DPR", "DPD"], "a": 1, "exp": "Mahkamah Konstitusi (MK) dibentuk pasca reformasi amandemen dengan kewenangan yuridis mutlak menguji validitas materiil Undang-Undang terhadap konstitusi UUD 1945."},
+        {"id": 35, "category": "Wawasan", "subCategory": "Sejarah Nasional", "difficulty": "Mudah", "estimatedTime": 45, "q": "Siapakah tokoh nasional Indonesia yang mengetik naskah proklamasi otentik?", "o": ["Ir. Soekarno", "Drs. Moh. Hatta", "Sayuti Melik", "Sukarni", "Ahmad Soebardjo"], "a": 2, "exp": "Naskah konsep teks Proklamasi diketik dengan rapi dan mengalami penyesuaian redaksional oleh tokoh pemuda Sayuti Melik."},
+        {"id": 36, "category": "Wawasan", "subCategory": "Sejarah Nasional", "difficulty": "Mudah", "estimatedTime": 45, "q": "Organisasi pergerakan nasional pertama di Indonesia yang berdiri pada 20 Mei 1908 adalah?", "o": ["Sarekat Islam", "Indische Partij", "Budi Utomo", "PNI", "Muhammadiyah"], "a": 2, "exp": "Budi Utomo didirikan oleh Dr. Soetomo dan para mahasiswa STOVIA pada 20 Mei 1908, yang kini diperingati nasional sebagai Hari Kebangkitan Nasional."},
+        {"id": 37, "category": "Wawasan", "subCategory": "Kebijakan Publik", "difficulty": "Sedang", "estimatedTime": 45, "q": "Badan Pemerintah Penyelenggara Jaminan Sosial Kesehatan nasional di Indonesia dinamakan?", "o": ["BPJS Ketenagakerjaan", "Taspen", "Askes", "BPJS Kesehatan", "Jasa Raharja"], "a": 3, "exp": "Transformasi PT Askes secara regulasi jaminan sosial nasional berubah menjadi badan hukum publik bernama BPJS Kesehatan."},
+        {"id": 38, "category": "Wawasan", "subCategory": "Reformasi Birokrasi", "difficulty": "Sedang", "estimatedTime": 45, "q": "Tujuan pokok dari pelaksanaan program Reformasi Birokrasi di instansi pemerintahan adalah?", "o": ["Menaikkan gaji aparatur sipil", "Membeli perangkat komputer", "Mewujudkan tata kelola pemerintahan yang bersih dan berkinerja tinggi", "Memperpanjang jam operasional", "Mengurangi jumlah pegawai total"], "a": 2, "exp": "Reformasi birokrasi bertujuan makro membangun sistem penyelenggaraan pemerintahan yang bersih, efisien, transparan, akuntabel, serta berorientasi pada mutu pelayanan publik."},
+        {"id": 39, "category": "Wawasan", "subCategory": "Hukum & UU", "difficulty": "Sulit", "estimatedTime": 60, "q": "Undang-Undang terbaru yang mengatur tentang Minyak dan Gas Bumi (Migas) adalah?", "o": ["UU 21/2001", "UU 22/2002", "UU 21/2002", "UU 21/2001", "UU 22/2001"], "a": 4, "exp": "Tata kelola hilir dan hulu komoditas minyak serta gas bumi nasional diatur mendasar dalam Undang-Undang Nomor 22 Tahun 2001."},
+        {"id": 40, "category": "Wawasan", "subCategory": "Sektoral", "difficulty": "Sedang", "estimatedTime": 45, "q": "Kapan waktu beban listrik puncak (Peak Load) wilayah jaringan JAMALI?", "o": ["18:00-22:00", "19:00-22:00", "17:00-21:00", "18:00-21:00", "17:00-22:00"], "a": 0, "exp": "Waktu beban listrik puncak sistem kelistrikan Jawa-Madura-Bali terjadi pada pukul 18.00 hingga 22.00 malam hari saat aktivitas domestik memuncak."},
+        {"id": 41, "category": "Wawasan", "subCategory": "Kebijakan Publik", "difficulty": "Sedang", "estimatedTime": 45, "q": "Visi mendasar dalam draf kebijakan energi nasional Indonesia adalah?", "o": ["Terjamin penyediaan", "Intensitas", "Kompetitif", "Open access", "Konsumsi"], "a": 0, "exp": "Prioritas mutlak bauran dan kemandirian energi nasional bertumpu pada ketersediaan pasokan energi yang terjamin dan berkelanjutan."},
+        {"id": 42, "category": "Wawasan", "subCategory": "Hukum & UU", "difficulty": "Sedang", "estimatedTime": 45, "q": "UU No 30 Tahun 2009 mengatur regulasi nasional tentang sektor?", "o": ["Pertambangan", "Ketenagalistrikan", "Minyak Bumi", "Energi Nuklir", "Geothermal"], "a": 1, "exp": "Landasan hukum operasi, distribusi, penyediaan, dan komersialisasi listrik nasional dimuat komprehensif dalam Undang-Undang Nomor 30 Tahun 2009."},
+        {"id": 43, "category": "Wawasan", "subCategory": "Internasional", "difficulty": "Mudah", "estimatedTime": 45, "q": "Konferensi Tingkat Tinggi Asia-Afrika pertama tahun 1955 diselenggarakan di kota?", "o": ["Jakarta", "Surabaya", "Bandung", "Yogyakarta", "Semarang"], "a": 2, "exp": "KTT Asia-Afrika (KAA) yang melahirkan Dasa Sila Bandung diselenggarakan secara sukses di Gedung Merdeka, Kota Bandung tahun 1955."},
+        {"id": 44, "category": "Wawasan", "subCategory": "Internasional", "difficulty": "Mudah", "estimatedTime": 45, "q": "Sekretariat tetap asosiasi kawasan negara-negara Asia Tenggara (ASEAN) berkedudukan di kota?", "o": ["Bangkok", "Kuala Lumpur", "Manila", "Jakarta", "Singapura"], "a": 3, "exp": "Gedung Sekretariat Jenderal perhimpunan bangsa-bangsa Asia Tenggara (ASEAN) dibangun dan berkedudukan tetap di Jakarta, Indonesia."},
+        {"id": 45, "category": "Wawasan", "subCategory": "Kebijakan Publik", "difficulty": "Sulit", "estimatedTime": 60, "q": "Model perumusan kebijakan publik yang melihat kebijakan sebagai kelanjutan aktivitas masa lalu dengan modifikasi disebut model?", "o": ["Rasional komprehensif", "Sistem", "Inkrementalis", "Kelompok", "Elite institusional"], "a": 2, "exp": "Inkrementalisme menganggap kebijakan publik sebagai kelanjutan atau variasi dari aktivitas serta program pemerintah di masa lampau yang diubah secara bertahap."},
+        {"id": 46, "category": "Wawasan", "subCategory": "Sejarah Nasional", "difficulty": "Sedang", "estimatedTime": 45, "q": "Indonesia resmi membekukan keanggotaan keluar dari OPEC pada tahun?", "o": ["2004", "2006", "2009", "2012", "2000"], "a": 2, "exp": "Indonesia keluar dan membekukan keanggotaannya di OPEC pada tahun 2008 efektif per awal 2009 karena status Indonesia yang telah bergeser menjadi net importer minyak."},
+        {"id": 47, "category": "Wawasan", "subCategory": "Tata Negara", "difficulty": "Sedang", "estimatedTime": 45, "q": "Pertimbangan sosiologis utama institusi POLRI dipisahkan keluar dari ABRI adalah?", "o": ["Citra", "Hukum", "Keamanan", "Paradigma sipil", "Militer sipil"], "a": 3, "exp": "Pemisahan TAP MPR tahun 2000 menuntut POLRI bergeser mengadopsi paradigma sipil guna mengoptimalkan fungsi pelindung, pengayom, dan penegak hukum tanpa watak militeristik."},
+        {"id": 48, "category": "Wawasan", "subCategory": "UUD 1945", "difficulty": "Sedang", "estimatedTime": 45, "q": "Pasal berapa dalam konstitusi yang menyatakan Indonesia sebagai negara hukum?", "o": ["Pasal 1 ayat 1", "Pasal 1 ayat 2", "Pasal 1 ayat 3", "Pasal 2 ayat 1", "Pasal 3 ayat 1"], "a": 2, "exp": "Penegasan yuridis 'Negara Indonesia adalah negara hukum' tercantum secara gamblang dalam rumusan Pasal 1 ayat (3) UUD 1945 amandemen."},
+        {"id": 49, "category": "Wawasan", "subCategory": "UUD 1945", "difficulty": "Sedang", "estimatedTime": 45, "q": "Kekuasaan yudisial tertinggi di Indonesia dipegang oleh?", "o": ["Presiden", "DPR", "Mahkamah Agung", "Kejaksaan Agung", "KPK"], "a": 2, "exp": "Sesuai undang-undang dasar, kekuasaan kehakiman/yudisial merdeka tertinggi dijalankan oleh Mahkamah Agung (MA) beserta badan peradilan di bawahnya."},
+        {"id": 50, "category": "Wawasan", "subCategory": "Hukum & UU", "difficulty": "Sedang", "estimatedTime": 45, "q": "Hierarki peraturan perundang-undangan tertinggi menurut UU No 12 Tahun 2011 adalah?", "o": ["Perpres", "UU/Perpu", "TAP MPR", "UUD 1945", "Perda"], "a": 3, "exp": "Berdasarkan tata urutan legalistik formal Indonesia, Undang-Undang Dasar Negara Republik Indonesia Tahun 1945 (UUD 1945) menduduki posisi puncak tertinggi."},
+        {"id": 51, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menemukan kelebihan uang kembalian saat bertransaksi di kantin kantor, tindakan paling tepat adalah?", "o": ["Menyimpannya karena dianggap rezeki", "Mengembalikan kelebihannya kepada penjual", "Membagikan ke teman dekat", "Membiarkannya saja", "Menyumbangkannya langsung"], "a": 1, "exp": "Prinsip dasar integritas kejujuran mengharuskan seseorang mengembalikan apa yang bukan menjadi hak miliknya secara objektif."},
+        {"id": 52, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Melihat rekan kerja melakukan tindakan kecurangan manipulasi data absensi digital?", "o": ["Mengabaikan demi solidaritas pertemanan", "Melaporkan secara objektif ke bagian SDM/atasan sesuai koridor aturan", "Ikut melakukan tindakan serupa", "Membicarakan di belakang", "Menghapus data tersebut diam-diam"], "a": 1, "exp": "Kepatuhan tata tertib organisasi menuntut pelaporan fraud guna menegakkan iklim profesionalitas kerja yang sehat."},
+        {"id": 53, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi tumpukan tugas kedinasan yang mendesak dengan batas waktu ketat?", "o": ["Menunda hingga esok hari", "Membuat skala prioritas, fokus menyelesaikan satu per satu secara optimal", "Meninggalkan pekerjaan", "Mengeluh di media sosial", "Meminta rekan kerja mengerjakan semuanya"], "a": 1, "exp": "Profesionalitas kerja tecermin dari kemampuan mengelola manajemen waktu melalui penyusunan skala prioritas tugas secara taktis."},
+        {"id": 54, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Ketika terjadi perbedaan pendapat yang tajam dalam rapat penentuan strategi tim?", "o": ["Keluar dari ruang rapat", "Mendengarkan, menghargai argumen, dan mencari titik temu solusi bersama", "Memaksakan ide pribadi", "Diam dan pasif", "Menyindir rekan rapat"], "a": 1, "exp": "Kematangan profesional menuntut kompetensi komunikasi asertif, toleransi perbedaan, serta orientasi pemecahan masalah kolektif."},
+        {"id": 55, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Ditugaskan ke unit kerja baru dengan kultur dan sistem operasional yang berbeda?", "o": ["Protes meminta pembatalan", "Mempelajari sistem baru dengan cepat dan membuka diri beradaptasi", "Bekerja asal-asalan", "Menutup diri", "Sering mengajukan cuti"], "a": 1, "exp": "Kemampuan adaptasi (agility) di lingkungan baru merupakan aset kompetensi krusial bagi akselerasi efisiensi organisasi."},
+        {"id": 56, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Terjadi perubahan mendadak pada aplikasi sistem pelayanan yang biasa Anda gunakan?", "o": ["Menolak memakai sistem baru", "Mengikuti pelatihan sistem baru dengan antusias guna kelancaran tugas", "Menggunakan cara manual lama", "Menyalahkan manajemen", "Berhenti melayani masyarakat"], "a": 1, "exp": "Fleksibilitas mengadopsi pembaruan teknologi digital mendukung transformasi performa birokrasi modern."},
+        {"id": 57, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi keluhan/komplain masyarakat yang disampaikan dengan nada marah?", "o": ["Membalas dengan kemarahan", "Mendengarkan dengan empati, bersikap sopan, dan memberikan solusi yang jelas", "Mengacuhkan keluhan", "Meminta petugas keamanan mengusir", "Menjanjikan hal yang mustahil"], "a": 1, "exp": "Core value pelayanan prima menuntut kesabaran, empati, kejelasan informasi, serta penyelesaian masalah secara humanis."},
+        {"id": 58, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Terdapat antrean panjang warga di loket pelayanan menjelang jam istirahat kantor?", "o": ["Menutup loket tepat waktu", "Menyelesaikan antrean yang ada dengan efisien dan ramah", "Meninggalkan loket langsung", "Bekerja melambat", "Meminta warga datang besok"], "a": 1, "exp": "Dedikasi pelayanan publik tecermin dari komitmen menyelesaikan kewajiban layanan demi kenyamanan masyarakat umum."},
+        {"id": 59, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Sebagai ketua tim, bagaimana Anda mendelegasikan tugas ke anggota kelompok?", "o": ["Memberikan semua tugas berat", "Membagi tugas berdasarkan kompetensi, beban kerja, dan kapasitas masing-masing", "Mengerjakan seluruh tugas sendiri", "Membiarkan anggota memilih tanpa koordinasi", "Menunjuk anggota paling baru saja"], "a": 1, "exp": "Manajemen kepemimpinan efektif bertumpu pada pembagian kerja yang adil, proporsional, serta berbasis pemetaan kompetensi staf."},
+        {"id": 60, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Melihat anggota tim kerja Anda mengalami penurunan performa output pekerjaan?", "o": ["Langsung memberikan sanksi", "Mengajak berdiskusi privat, mencari akar masalah, dan memberi arahan motivasi", "Membiarkan saja agar sadar sendiri", "Menggantinya dengan orang lain", "Membicarakan kelemahan di depan tim"], "a": 1, "exp": "Fungsi pembinaan (coaching) oleh manajer bertujuan memulihkan produktivitas melalui pendekatan solutif suportif."},
+        {"id": 61, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Rekan kerja menawarkan pembagian keuntungan dari proyek pengadaan kantor secara tidak sah?", "o": ["Menerima tawaran tersebut", "Menolak dengan tegas dan mengingatkan rekan tentang aturan hukum", "Mempertimbangkan jumlah uangnya", "Melaporkan ke media massa", "Minta jaminan kerahasiaan"], "a": 1, "exp": "Menolak gratifikasi dan korupsi merupakan manifestasi komitmen moral tanpa kompromi pada nilai integritas."},
+        {"id": 62, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Anda melakukan kesalahan fatal dalam menyusun laporan keuangan bulanan instansi?", "o": ["Menyembunyikan kesalahan", "Mengakui kesalahan, meminta maaf, dan segera memperbaiki laporan tersebut", "Menyalahkan staf administrasi", "Menunggu hingga ditegur", "Mengubah rumus agar tersamarkan"], "a": 1, "exp": "Akuntabilitas profesional dibuktikan dengan keberanian mengakui kekeliruan serta melakukan tindakan perbaikan cepat."},
+        {"id": 63, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Organisasi menerapkan kebijakan kerja hibrida (WFH dan WFO) secara dinamis bergantian?", "o": ["Mengeluh karena tidak nyaman", "Menata manajemen kerja mandiri agar produktivitas tetap tinggi di mana pun", "Hanya aktif bekerja saat WFO", "Meminta dispensasi khusus", "Sering mangkir dari rapat daring"], "a": 1, "exp": "Kemampuan mengelola produktivitas secara mandiri di berbagai situasi spasial menunjukkan kompetensi adaptasi yang matang."},
+        {"id": 64, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Seorang disabilitas kesulitan mengakses tangga pintu masuk gedung layanan?", "o": ["Melihat dari kejauhan", "Segera menghampiri dan membantu mengantarkannya dengan ramah", "Menunggu instruksi atasan", "Menyuruh warga lain membantu", "Mengabaikan saja"], "a": 1, "exp": "Pelayanan inklusif mengamanatkan kepekaan penuh serta kesigapan membantu kelompok rentan/berkebutuhan khusus."},
+        {"id": 65, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana Anda menyikapi konflik personal antara dua staf di bawah kendali Anda?", "o": ["Memihak staf yang paling senior", "Menjadi mediator netral, mendengarkan kedua belah pihak, dan mencari solusi damai", "Membiarkan konflik mereda sendiri", "Memindahkan salah satu staf tanpa klarifikasi", "Memberikan surat peringatan keras langsung"], "a": 1, "exp": "Kompetensi resolusi konflik diperlukan pemimpin guna menjaga harmonisasi serta stabilitas psikologis lingkungan kerja tim."},
+        {"id": 66, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Datang terlambat ke kantor karena bangun kesiangan, apa yang Anda lakukan pada mesin absensi?", "o": ["Meminta teman menitipkan absen", "Mencatat waktu kehadiran asli dengan jujur tanpa rekayasa data", "Mencari alasan palsu untuk atasan", "Merusak mesin absensi", "Mengisi form tugas luar palsu"], "a": 1, "exp": "Kejujuran administratif tecermin dari pengisian data kehadiran orisinal apa adanya sebagai bukti disiplin pribadi."},
+        {"id": 67, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Saat Anda sedang libur akhir pekan, atasan menghubungi untuk konfirmasi data darurat?", "o": ["Mematikan ponsel", "Merespons dengan sopan dan memberikan informasi data yang dibutuhkan dengan ringkas", "Marah karena diganggu", "Menunda merespons hingga Senin", "Menyuruh rekan lain menjawab"], "a": 1, "exp": "Loyalitas situasional darurat kedinasan disikapi secara bijak dengan komunikasi responsif demi kelancaran organisasi."},
+        {"id": 68, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Prinsip transparansi dalam standardisasi dokumen alur pelayanan publik bermakna?", "o": ["Biaya pelayanan dibuat rahasia", "Seluruh persyaratan, waktu, dan biaya diumumkan terbuka kepada publik", "Proses pengurusan dipercepat bagi keluarga", "Hanya dipahami oleh internal pegawai", "Petunjuk alur dipasang di tempat tersembunyi"], "a": 1, "exp": "Asas keterbukaan informasi publik memastikan kepastian hukum serta mengeliminasi praktik pungutan liar/calo."},
+        {"id": 69, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Dalam rapat tahunan, unit kerja Anda berhasil melampaui target performa makro?", "o": ["Mengklaim kesuksesan sebagai hasil kerja pribadi pemimpin", "Apresiasi kontribusi seluruh tim dan evaluasi untuk mempertahankan performa", "Langsung meminta kenaikan anggaran besar", "Menghentikan inovasi kerja", "Merayakan berlebihan hingga melalaikan tugas harian"], "a": 1, "exp": "Pemimpin visioner senantiasa mengapresiasi sinergi kolektif (teamwork recognition) sembari menjaga kesinambungan evaluasi mutu."},
+        {"id": 70, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi mutasi jabatan ke daerah pelosok yang minim fasilitas hiburan modern?", "o": ["Mengundurkan diri sebagai pegawai", "Menerima keputusan dengan kesadaran penuh akan kewajiban tugas pengabdian negara", "Mengajukan komplain berkali-kali", "Sering membolos kerja di tempat baru", "Membawa nama instansi ke ranah hukum"], "a": 1, "exp": "Kepatuhan penempatan dinas membuktikan kesiapan integritas total korps pegawai dalam melayani seluruh wilayah negeri."},
+        {"id": 71, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Tindakan nepotisme dalam meloloskan kerabat dekat pada seleksi internal instansi melanggar nilai?", "o": ["Kreativitas", "Integritas objektif dan keadilan kompetensi", "Efisiensi biaya", "Kerja keras", "Kemandirian"], "a": 1, "exp": "Nepotisme mencederai keadilan peluang serta merusak standardisasi meritokrasi berbasis kompetensi nyata."},
+        {"id": 72, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana Anda membagi konsentrasi kerja jika memiliki masalah pribadi di rumah?", "o": ["Membawa masalah rumah ke meja kerja kantor", "Mengisolasi masalah pribadi, fokus penuh menyelesaikan kewajiban kedinasan secara profesional", "Sering melamun saat melayani warga", "Meminta rekan kerja mendengarkan curhat sepanjang jam kerja", "Pulang lebih awal tanpa izin resmi"], "a": 1, "exp": "Pemisahan urusan domestik dengan koridor tanggung jawab kedinasan membedakan kematangan kompetensi pegawai profesional."},
+        {"id": 73, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menjaga kerahasiaan data sensitif instansi dari pihak luar yang mencoba membujuk dengan imbalan materi?", "o": ["Integritas dan tanggung jawab", "Pelanggaran aturan", "Keterbukaan mutlak", "Pragmatisme", "Solidaritas semu"], "a": 0, "exp": "Menjaga rahasia jabatan, data sensitif, dan rahasia perusahaan merupakan komitmen kepatuhan etis mendasar."},
+        {"id": 74, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Berani menyampaikan indikasi pelanggaran aturan di internal lembaga kepada jajaran pimpinan merupakan bukti?", "o": ["Sikap mencari kesalahan", "Komitmen menegakkan kejujuran dan nama baik instansi", "Tindakan indisipliner", "Pemberontakan staf", "Prilaku subversif"], "a": 1, "exp": "Berani menyuarakan kebenaran (whistleblowing) demi melindungi aset organisasi dari fraud membuktikan integritas moral mendalam."},
+        {"id": 75, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Penggunaan kendaraan dinas operasional untuk kepentingan mudik keluarga pribadi di hari raya secara aturan?", "o": ["Sangat wajar sebagai fasilitas", "Tidak diperbolehkan karena menyalahgunakan aset negara bukan untuk kedinasan", "Boleh jika bensin dibeli sendiri", "Diperkenankan asalkan berhati-hati", "Tergantung izin dari rekan sejawat"], "a": 1, "exp": "Disiplin pengelolaan aset negara melarang penggunaan sarana dinas untuk kepentingan utilitas personal non-kedinasan."},
+        {"id": 76, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Indikator utama seorang pegawai memiliki etos kerja tinggi dalam kesehariannya adalah?", "o": ["Hanya bekerja giat saat dipantau kamera pengawas atau pimpinan", "Konsisten memberikan hasil kerja mutu terbaik, tuntas, dan berorientasi kemajuan", "Sering lembur tanpa menghasilkan produk konkret", "Pandai berteori saat forum rapat formal", "Menghindari tugas yang memiliki risiko kegagalan"], "a": 1, "exp": "Etos kerja tinggi tercermin dari konsistensi, dorongan internal, keandalan, serta komitmen mutu tugas sepanjang waktu."},
+        {"id": 77, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi rekan satu divisi yang kerap menolak didelegasikan tugas operasional tim?", "o": ["Ikut malas bekerja agar adil", "Berkomunikasi asertif, memetakan kendalanya, dan berkoordinasi dengan kepala unit", "Memusuhi rekan tersebut", "Mengerjakan tugasnya sambil terus menggerutu", "Melaporkan ke media keluhan internal"], "a": 1, "exp": "Penyelesaian hambatan kerja tim dilakukan lewat komunikasi interpersonal yang konstruktif serta jalur hierarki organisasi resmi."},
+        {"id": 78, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Pemanfaatan koneksi internet Wi-Fi kantor pada jam pelayanan kerja untuk mengunduh film drama?", "o": ["Hak pegawai sebagai hiburan", "Tindakan kurang profesional karena menyalahgunakan bandwidth untuk urusan non-pekerjaan", "Boleh jika pekerjaan sedang renggang", "Sangat dianjurkan menghilangkan penat", "Bukan urusan siapapun"], "a": 1, "exp": "Efisiensi utilitas fasilitas instansi ditujukan murni mendukung kelancaran operasional pelayanan publik dan tupoksi dinas."},
+        {"id": 79, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Saat Anda sedang cuti tahunan, terjadi restrukturisasi organisasi yang mengubah fungsi divisi Anda?", "o": ["Marah dan segera memotong masa cuti", "Menerima info dengan tenang, mempelajari tupoksi divisi baru, dan bersiap adaptasi sekembali cuti", "Mengajukan surat protes massal", "Mencari lowongan pekerjaan di instansi lain", "Mengabaikan informasi tersebut"], "a": 1, "exp": "Kematangan adaptabilitas tecermin dari ketenangan emosional menyikapi dinamika perubahan struktural organisasi secara positif."},
+        {"id": 80, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Metode kerja digitalisasi menuntut Anda menguasai keahlian analisis data statistik canggih?", "o": ["Menolak karena merasa faktor usia sudah tua", "Mengambil kursus/belajar mandiri dengan tekun untuk meningkatkan kapabilitas diri", "Meminta staf magang menggantikan peran Anda", "Mengkritik kebijakan manajemen di forum terbuka", "Mengerjakan tugas dengan metode manual lama yang lambat"], "a": 1, "exp": "Pembelajaran sepanjang hayat (lifelong learning) menjadi keharusan adaptif guna menjaga relevansi kompetensi individu."},
+        {"id": 81, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana Anda menyikapi kegagalan implementasi sebuah proyek percontohan yang Anda pimpin?", "o": ["Mencari kambing hitam dari anggota tim", "Menjadikannya bahan evaluasi komprehensif, memetakan defisit taktis, dan merancang perbaikan", "Merasa frustrasi dan enggan memimpin lagi", "Memanipulasi laporan akhir agar terlihat sukses", "Menyalahkan vendor penyedia eksternal"], "a": 1, "exp": "Resiliensi kegagalan diwujudkan dengan objektivitas evaluatif serta pencarian langkah mitigasi konstruktif ke depan."},
+        {"id": 82, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Pengguna layanan keliru membawa berkas persyaratan administrasi yang diwajibkan sistem?", "o": ["Menolak kasar dan langsung menyuruhnya pulang", "Menjelaskan kekurangan berkas secara detail, santun, serta memberikan lembar panduan tertulis", "Menerima berkas kosong tersebut demi kasihan", "Meminta uang pelicin agar berkas lolos", "Membiarkan warga kebingungan di area loket"], "a": 1, "exp": "Edukasi publik yang komunikatif, ramah, dan solutif merupakan pilar standar mutu pelayanan aparatur sipil negara."},
+        {"id": 83, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana cara terbaik mewujudkan digitalisasi pelayanan publik di area loket utama?", "o": ["Membeli komputer mahal tanpa melatih petugas", "Menyediakan aplikasi yang user-friendly, melatih staf, dan menyediakan pemandu bagi warga", "Mewajibkan warga membawa laptop sendiri", "Menutup layanan tatap muka secara ekstrem seketika", "Memungut biaya tambahan digitalisasi pada masyarakat"], "a": 1, "exp": "Transformasi digital berhasil jika mengombinasikan kesiapan infrastruktur, kemudahan sistem, serta pendampingan pengguna."},
+        {"id": 84, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Seorang tokoh masyarakat meminta didahulukan antreannya di loket pelayanan publik tanpa prosedur?", "o": ["Langsung meloloskannya karena takut", "Menjelaskan dengan sopan prinsip keadilan antrean baku, dan memohon beliau mengikuti nomor urut", "Menyuruh warga lain mengalah secara paksa", "Pura-pura tidak melihat kehadiran tokoh tersebut", "Menutup loket sementara waktu menghindari konflik"], "a": 1, "exp": "Asas persamaan perlakuan (equality) melarang diskriminasi atau keistimewaan layanan non-prosedural di ruang publik."},
+        {"id": 85, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Strategi paling efektif untuk membangun komitmen kerja tinggi pada seluruh anggota tim adalah?", "o": ["Menerapkan sistem denda finansial yang besar", "Melibatkan tim dalam penyusunan target, komunikasi transparan, dan memberikan apresiasi berkala", "Memberikan instruksi kaku tanpa ruang diskusi", "Mengawasi gerak-gerik pegawai secara ketat sepanjang hari", "Meniadakan hari libur akhir pekan divisi"], "a": 1, "exp": "Kepemimpinan partisipatif dan pengakuan kontribusi efektif menumbuhkan rasa kepemilikan (engagement) pegawai terhadap visi organisasi."},
+        {"id": 86, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi situasi krisis operasional akibat pasokan logistik terputus mendadak?", "o": ["Panik dan menghentikan seluruh kegiatan", "Mengaktifkan rencana darurat, koordinasi cepat dengan pemasok alternatif, dan lapor pimpinan", "Menunggu instruksi tertulis tanpa melakukan tindakan apa pun", "Menyalahkan bagian pengadaan secara sepihak", "Merahasiakan krisis dari jajaran direksi"], "a": 1, "exp": "Manajer andal dituntut sigap mengambil keputusan darurat (crisis management) guna menjamin keberlangsungan fungsi organisasi."},
+        {"id": 87, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Langkah awal yang semestinya dilakukan manajer dalam merencanakan program kerja tahunan baru adalah?", "o": ["Menghabiskan sisa anggaran tahun lalu", "Melakukan analisis evaluasi capaian realisasi program kerja periode sebelumnya", "Meniru mutlak program kerja instansi swasta lain", "Menunjuk langsung ketua panitia tanpa rapat", "Membuat draf program tanpa melihat kapasitas SDM"], "a": 1, "exp": "Perencanaan yang ilmiah dan matang senantiasa berpijak pada data berbasis evaluasi kinerja masa lalu (evidence-based planning)."},
+        {"id": 88, "category": "Umum", "subCategory": "Komunikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana cara Anda menyampaikan berita penundaan pencairan insentif proyek kepada tim?", "o": ["Menyampaikan lewat pesan singkat grup tanpa alasan jelas", "Menjelaskan situasi objektif dalam rapat formal, sampaikan permohonan maaf, dan estimasi waktu pasti", "Menghindari pertemuan dengan tim", "Menyalahkan bagian keuangan pusat sepenuhnya", "Mengancam akan memberi sanksi bagi yang protes"], "a": 1, "exp": "Komunikasi kepemimpinan yang transparan, empati, dan solutif meminimalkan gejolak serta menjaga stabilitas moral tim."},
+        {"id": 89, "category": "Umum", "subCategory": "Komunikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menerima instruksi kerja dari atasan yang kalimat perintahnya kurang jelas dan ambigu?", "o": ["Melaksanakan instruksi sesuai tebakan pribadi saja", "Melakukan konfirmasi klarifikasi secara sopan guna menyamakan persepsi target tugas", "Mengabaikan perintah tersebut", "Membicarakan kelemahan komunikasi atasan ke staf lain", "Langsung melimpahkan tugas ke bawahan"], "a": 1, "exp": "Konfirmasi umpan balik (feedback loop) dalam komunikasi hierarkis penting demi mencegah terjadinya kesalahan fatal akibat mispersepsi."},
+        {"id": 90, "category": "Umum", "subCategory": "Komunikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi keluhan kesalahpahaman kerja antar divisi rekan sejawat instansi?", "o": ["Ikut memanaskan situasi", "Memfasilitasi forum duduk bersama, fokus pada penyelarasan alur kerja bukan menyerang personal", "Menghasut pimpinan divisi masing-masing", "Bersikap masa bodoh", "Menyebarkan rumor ke unit kerja luar"], "a": 1, "exp": "Komunikasi koordinatif lintas fungsi yang sehat mengeliminasi ego sektoral demi kelancaran rantai nilai organisasi."},
+        {"id": 91, "category": "Umum", "subCategory": "Komunikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Prinsip utama yang Anda pegang saat melakukan presentasi draf inovasi layanan di hadapan dewan direksi adalah?", "o": ["Menyampaikan ide solutif guna mendorong produktivitas capaian kelompok", "Hanya mengikuti ide dominan tanpa memberikan masukan", "Memaksakan kehendak pribadi harus diterima", "Menjadi pengamat pasif saja", "Menjatuhkan kinerja metode divisi lain"], "a": 0, "exp": "Partisipasi aktif memberikan solusi solutif mempercepat pencapaian target kerja tim secara kolaboratif."},
+        {"id": 92, "category": "Umum", "subCategory": "Komunikasi", "difficulty": "Mudah", "estimatedTime": 30, "q": "Mendapat teguran atau kritikan performa kerja yang objektif dari atasan?", "o": ["Menjadikan umpan balik tersebut sebagai bahan evaluasi introspeksi", "Merasa putus asa dan kehilangan motivasi", "Menolak teguran dan bersikap defensif kaku", "Berprasangka buruk pada pimpinan", "Mengajukan mutasi keluar divisi secepatnya"], "a": 0, "exp": "Kritik objektif merupakan sarana evaluasi eksternal berharga demi menyempurnakan mutu kerja ke depan."},
+        {"id": 93, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menghadapi kendala teknis operasional yang sulit dan belum pernah ditemui sebelumnya?", "o": ["Berupaya melakukan analisis mandiri mencari formulasi solusi awal", "Langsung menyerah tanpa mencoba mencari tahu", "Menunggu orang lain datang menyelesaikan masalah", "Menyembunyikan kendala tersebut dari tim", "Menyalahkan produsen pembuat mesin aplikasi"], "a": 0, "exp": "Melakukan penalaran mandiri (troubleshooting) melatih ketajaman analisis masalah sebelum meminta bantuan ahli."},
+        {"id": 94, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Faktor penentu utama keberhasilan target kolosal sebuah organisasi terletak pada?", "o": ["Membangun sinergi nilai tambah antardivisi secara solid", "Kerja individu yang terisolasi", "Pemberian bonus finansial tanpa aturan", "Pengetatan jam kerja secara ekstrem", "Pemberian fasilitas mewah bagi pimpinan puncak"], "a": 0, "exp": "Sinergi tim lintas fungsi mengeliminasi ego sektoral serta melipatgandakan daya jangkau output kinerja makro korporasi."},
+        {"id": 95, "category": "Umum", "subCategory": "Pelayanan Publik", "difficulty": "Mudah", "estimatedTime": 30, "q": "Penyediaan fasilitas ruang menyusui (laktasi) di kantor pelayanan publik ditujukan untuk memenuhi asas?", "o": ["Keadilan kepatutan kemudahan bagi kelompok ibu dan anak", "Formalitas pemenuhan lomba piagam kertas", "Kemewahan estetika visual interior gedung", "Penghematan anggaran belanja operasional rutin", "Kelonggaran disiplin jam kerja internal karyawati"], "a": 0, "exp": "Fasilitas penunjang spesifik mewujudkan kenyamanan ekosistem layanan inklusif yang ramah gender dan anak."},
+        {"id": 96, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Menolak dengan halus pemberian bingkisan kue dari keluarga pasien yang telah selesai Anda layani dengan tuntas dibenarkan karena?", "o": ["Menjaga marwah profesi dari potensi benturan kepentingan gratifikasi", "Rasa kue tersebut kurang sesuai selera pribadi Anda", "Takut dinilai berlebihan oleh rekan sejawat ruangan", "Ingin meminta imbalan dalam bentuk uang tunai saja", "Bingkisan tersebut dikhawatirkan kedaluwarsa"], "a": 0, "exp": "Sikap proaktif menjauhi praktik gratifikasi sekecil apa pun menjaga integritas dan objektivitas layanan jangka panjang."},
+        {"id": 97, "category": "Umum", "subCategory": "Profesionalisme", "difficulty": "Mudah", "estimatedTime": 30, "q": "Bagaimana Anda memandang esensi kedisiplinan jam masuk kerja kantor?", "o": ["Sebagai bagian integral dari amanah tanggung jawab profesionalitas", "Sebagai beban formalitas kaku yang menyiksa", "Sesuatu yang boleh dilanggar jika tidak diawasi", "Hanya berlaku untuk pegawai kontrak saja", "Sarana mencari perhatian di depan pimpinan"], "a": 0, "exp": "Disiplin kehadiran mencerminkan kepatuhan regulasi sekaligus kematangan karakter integritas individu kerja."},
+        {"id": 98, "category": "Umum", "subCategory": "Manajerial", "difficulty": "Mudah", "estimatedTime": 30, "q": "Apabila target tahunan unit kerja kelompok Anda tidak mampu tercapai optimal?", "o": ["Melakukan evaluasi objektif bersama guna memetakan taktik perbaikan", "Saling menyalahkan antaranggota tim", "Mengubah data laporan agar terlihat berhasil", "Membubarkan tim kerja secara sepihak", "Menyembunyikan kegagalan dari audit internal"], "a": 0, "exp": "Evaluasi rekapitulasi performa kelompok pasca kegagalan berguna untuk merumuskan mitigasi strategi periode selanjutnya."},
+        {"id": 99, "category": "Umum", "subCategory": "Adaptibilitas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Iklim lingkungan kerja seperti apa yang paling mendongkrak motivasi produktivitas Anda?", "o": ["Ketersediaan ruang inovasi untuk berkembang", "Pemberian sanksi fisik yang ketat", "Sistem kerja monoton tanpa tantangan", "Komunikasi yang serba tertutup", "Peniadaan penilaian evaluasi kinerja tahunan"], "a": 0, "exp": "Ruang inovasi yang aman (psychological safety) memacu pegawai mengeksplorasi potensi terbaiknya bagi organisasi."},
+        {"id": 100, "category": "Umum", "subCategory": "Integritas", "difficulty": "Mudah", "estimatedTime": 30, "q": "Definisi terdalam dari nilai Integritas bagi Anda pribadi adalah?", "o": ["Bertindak jujur, lurus, dan konsisten menyelaraskan perkataan dengan perbuatan", "Mencapai target dengan menghalalkan segala cara", "Kepatuhan semu hanya di hadapan pimpinan", "Sikap pasif mengikuti arus kelompok mayoritas", "Mengutamakan kepentingan pribadi di atas aturan lembaga"], "a": 0, "exp": "Integritas adalah keselarasan mutlak antara nilai moral yang dianut, perkataan yang diucapkan, serta tindakan nyata sehari-hari."}
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAns = Array(rawData.length).fill(null);
+    let flaggedQuestions = Array(rawData.length).fill(false);
+    let questionTimes = Array(rawData.length).fill(0);
+    let questionActiveStartTime = 0;
+    let intervalTimerId = null;
+    let timerTotalSeconds = 90 * 60;
+    const APP_STORAGE_KEY = "CAT_PRESTASI_SESI_JUARA";
+
+    function activeScreen(screenId) {
+        document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+        document.getElementById(screenId).classList.add("active");
+        window.scrollTo(0,0);
+    }
+
+    function triggerFastAuthentication() {
+        let name = document.getElementById("username").value.trim();
+        let pId = document.getElementById("part_number").value.trim() || "PRC-2026-REG";
+        if (!name) { alert("Silakan masukkan Nama Lengkap Anda!"); return; }
+        
+        document.getElementById("btn-login-action").style.display = "none";
+        let lBox = document.getElementById("loading-box");
+        lBox.style.display = "block";
+        
+        setTimeout(() => {
+            document.getElementById("hdr-name").innerText = name;
+            document.getElementById("hdr-id").innerText = pId;
+            document.getElementById("res-name").innerText = name;
+            document.getElementById("res-meta-session").innerText = "Sesi ID: " + btoa(name + Date.now()).substring(0,12).toUpperCase();
+            
+            attemptRestorePreviousSession();
+            buildNavigationGrid();
+            renderActiveQuestion();
+            updateNavigationGridVisuals();
+            startGlobalCountdownEngine();
+            
+            activeScreen("test-screen");
+            questionActiveStartTime = Date.now();
+        }, 1200);
+    }
+
+    function attemptRestorePreviousSession() {
+        try {
+            let saved = localStorage.getItem(APP_STORAGE_KEY);
+            if (saved) {
+                let parsed = JSON.parse(saved);
+                if (parsed && parsed.answers && parsed.answers.length === rawData.length) {
+                    userAns = parsed.answers || userAns;
+                    flaggedQuestions = parsed.flags || flaggedQuestions;
+                    questionTimes = parsed.times || questionTimes;
+                    timerTotalSeconds = parsed.remainingTime !== undefined ? parsed.remainingTime : timerTotalSeconds;
+                    
+                    document.getElementById("toast-recovery").style.display = "block";
+                    setTimeout(() => {
+                        document.getElementById("toast-recovery").style.display = "none";
+                    }, 4000);
+                }
+            }
+        } catch(e) {
+            console.log("Session restore failed", e);
+        }
+    }
+
+    function syncStateToLocalStorage() {
+        let packageData = {
+            answers: userAns,
+            flags: flaggedQuestions,
+            times: questionTimes,
+            remainingTime: timerTotalSeconds
+        };
+        localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(packageData));
+    }
+
+    function startGlobalCountdownEngine() {
+        if (intervalTimerId) clearInterval(intervalTimerId);
+        intervalTimerId = setInterval(() => {
+            if (timerTotalSeconds <= 0) {
+                clearInterval(intervalTimerId);
+                executeFinalCalculationsSubmit();
+                alert("Waktu ujian Anda telah habis! Sistem mengunci jawaban otomatis.");
+                return;
+            }
+            timerTotalSeconds--;
+            let m = Math.floor(timerTotalSeconds / 60).toString().padStart(2, '0');
+            let s = (timerTotalSeconds % 60).toString().padStart(2, '0');
+            document.getElementById("timer").innerText = `${m}:${s}`;
+            if (timerTotalSeconds % 10 === 0) syncStateToLocalStorage();
+        }, 1000);
+    }
+
+    function buildNavigationGrid() {
+        let grid = document.getElementById("nav-grid");
+        grid.innerHTML = "";
+        rawData.forEach((_, i) => {
+            let item = document.createElement("div");
+            item.className = "nav-item";
+            item.innerText = i + 1;
+            item.id = `nav-i-${i}`;
+            item.onclick = () => jumpToQ(i);
+            grid.appendChild(item);
+        });
+    }
+
+    function updateNavigationGridVisuals() {
+        let answeredCount = 0;
+        let flaggedCount = 0;
+        rawData.forEach((_, i) => {
+            let item = document.getElementById(`nav-i-${i}`);
+            if (!item) return;
+            item.className = "nav-item";
+            if (userAns[i] !== null) { item.classList.add("filled-done"); answeredCount++; }
+            if (flaggedQuestions[i]) { item.classList.add("flagged"); flaggedCount++; }
+            if (i === currentQuestionIndex) item.classList.add("active");
+        });
+        document.getElementById("p-answered").innerText = answeredCount;
+        document.getElementById("p-left").innerText = rawData.length - answeredCount;
+        document.getElementById("p-flagged").innerText = flaggedCount;
+        
+        let pct = Math.round((answeredCount / rawData.length) * 100);
+        document.getElementById("hdr-pct").innerText = pct + "%";
+        document.getElementById("progress-bar").style.width = pct + "%";
+        document.getElementById("hdr-qindex").innerText = `${currentQuestionIndex + 1} / ${rawData.length}`;
+    }
+
+    function renderActiveQuestion() {
+        let q = rawData[currentQuestionIndex];
+        document.getElementById("q-num").innerText = `SOAL NO. ${currentQuestionIndex + 1}`;
+        document.getElementById("q-text").innerHTML = q.q;
+        
+        let optContainer = document.getElementById("options-container");
+        optContainer.innerHTML = "";
+        
+        q.o.forEach((optText, i) => {
+            let div = document.createElement("div");
+            div.className = "opt";
+            if (userAns[currentQuestionIndex] === i) div.classList.add("selected");
+            div.onclick = () => storeAnswerSelection(i);
+            
+            let prefix = String.fromCharCode(65 + i);
+            div.innerHTML = `<span class="opt-prefix">${prefix}</span> <span style="font-size:15px; font-weight:500;">${optText}</span>`;
+            optContainer.appendChild(div);
+        });
+        updateNavigationGridVisuals();
+    }
+
+    function storeAnswerSelection(ansIdx) {
+        userAns[currentQuestionIndex] = ansIdx;
+        renderActiveQuestion();
+        syncStateToLocalStorage();
+        
+        setTimeout(() => {
+            changeQ(1);
+        }, 250);
+    }
+
+    function toggleFlag() {
+        flaggedQuestions[currentQuestionIndex] = !flaggedQuestions[currentQuestionIndex];
+        updateNavigationGridVisuals();
+        syncStateToLocalStorage();
+    }
+
+    function changeQ(dir) {
+        let elapsed = Math.floor((Date.now() - questionActiveStartTime) / 1000);
+        if (elapsed > 0) questionTimes[currentQuestionIndex] += elapsed;
+        
+        let target = currentQuestionIndex + dir;
+        if (target >= 0 && target < rawData.length) {
+            currentQuestionIndex = target;
+            renderActiveQuestion();
+            questionActiveStartTime = Date.now();
+        }
+    }
+
+    function jumpToQ(idx) {
+        let elapsed = Math.floor((Date.now() - questionActiveStartTime) / 1000);
+        if (elapsed > 0) questionTimes[currentQuestionIndex] += elapsed;
+        
+        currentQuestionIndex = idx;
+        renderActiveQuestion();
+        questionActiveStartTime = Date.now();
+    }
+
+    function navigateToReviewPage() {
+        let elapsed = Math.floor((Date.now() - questionActiveStartTime) / 1000);
+        if (elapsed > 0) questionTimes[currentQuestionIndex] += elapsed;
+        
+        let total = rawData.length;
+        let done = userAns.filter(x => x !== null).length;
+        let flags = flaggedQuestions.filter(x => x === true).length;
+        
+        document.getElementById("rev-total").innerText = total;
+        document.getElementById("rev-done").innerText = done;
+        document.getElementById("rev-empty").innerText = total - done;
+        document.getElementById("rev-flag").innerText = flags;
+        
+        let emptyList = [], flagList = [];
+        userAns.forEach((ans, i) => { if (ans === null) emptyList.push(i + 1); });
+        flaggedQuestions.forEach((f, i) => { if (f) flagList.push(i + 1); });
+        
+        document.getElementById("rev-list-empty").innerText = emptyList.length ? emptyList.join(", ") : "— Tidak Ada (Semua Terisi)";
+        document.getElementById("rev-list-flag").innerText = flagList.length ? flagList.join(", ") : "— Tidak Ada";
+        
+        activeScreen("review-screen");
+    }
+
+    function backToTestFromReview() {
+        activeScreen("test-screen");
+        questionActiveStartTime = Date.now();
+    }
+
+    function executeFinalCalculationsSubmit() {
+        clearInterval(intervalTimerId);
+        
+        let correctCount = 0, wrongCount = 0, emptyCount = 0;
+        let catStats = {};
+        let subStats = {};
+
+        rawData.forEach((q, i) => {
+            let uAns = userAns[i];
+            let isCorrect = uAns === q.a;
+            let isEmpty = uAns === null;
+            
+            if (isEmpty) emptyCount++;
+            else if (isCorrect) correctCount++;
+            else wrongCount++;
+
+            if (!catStats[q.category]) catStats[q.category] = { total: 0, correct: 0, time: 0 };
+            catStats[q.category].total++;
+            if (isCorrect) catStats[q.category].correct++;
+            catStats[q.category].time += questionTimes[i];
+
+            if (!subStats[q.subCategory]) subStats[q.subCategory] = { total: 0, correct: 0, catName: q.category };
+            subStats[q.subCategory].total++;
+            if (isCorrect) subStats[q.subCategory].correct++;
+        });
+
+        let finalScore = Math.round((correctCount / rawData.length) * 100);
+        document.getElementById("score-val").innerText = finalScore;
+        
+        document.getElementById("r-stat-c").innerText = correctCount;
+        document.getElementById("r-stat-w").innerText = wrongCount;
+        document.getElementById("r-stat-e").innerText = emptyCount;
+        document.getElementById("r-stat-pct").innerText = Math.round((correctCount / rawData.length) * 100) + "%";
+        
+        let timeUsedTotal = (90 * 60) - timerTotalSeconds;
+        document.getElementById("r-stat-time").innerText = Math.floor(timeUsedTotal / 60) + "m " + (timeUsedTotal % 60) + "s";
+        document.getElementById("r-stat-avg").innerText = Math.round(timeUsedTotal / rawData.length) + " detik/soal";
+
+        let fastestIdx = -1, slowestIdx = -1;
+        let minT = Infinity, maxT = -1;
+        questionTimes.forEach((t, idx) => {
+            if (t < minT && t > 1) { minT = t; fastestIdx = idx; }
+            if (t > maxT) { maxT = t; slowestIdx = idx; }
+        });
+        
+        document.getElementById("time-fastest").innerText = fastestIdx !== -1 ? `No. ${fastestIdx + 1} (${minT}s)` : "—";
+        document.getElementById("time-slowest").innerText = slowestIdx !== -1 ? `No. ${slowestIdx + 1} (${maxT}s)` : "—";
+        document.getElementById("time-consistency").innerText = "Sangat Baik (Stabil)";
+        document.getElementById("time-pace-status").innerText = finalScore >= 70 ? "Efisien & Tepat" : "Butuh Latihan Kecepatan";
+
+        let timelineBox = document.getElementById("timeline-box");
+        timelineBox.innerHTML = "";
+        let timelineSteps = [0, Math.floor(rawData.length / 2), rawData.length - 1];
+        timelineSteps.forEach(idx => {
+            if (idx >= rawData.length || idx < 0) return;
+            let tItem = document.createElement("div");
+            tItem.className = "timeline-item";
+            tItem.innerText = `Soal No. ${idx + 1} diselesaikan dalam ${questionTimes[idx]} detik.`;
+            timelineBox.appendChild(tItem);
+        });
+
+        // HITUNG AKURASI PERSENTASE SUB-KATEGORI
+        Object.keys(subStats).forEach(k => {
+            subStats[k].pct = Math.round((subStats[k].correct / subStats[k].total) * 100);
+        });
+
+        // 1. PERBAIKAN LOGIKA SORTING KEKUATAN & KELEMAHAN (Urutan Descending dari Terbesar ke Terkecil)
+        let sortedSubs = Object.keys(subStats).sort((a, b) => subStats[b].pct - subStats[a].pct);
+        
+        let strengthList = [];
+        let weaknessList = [];
+        
+        if (sortedSubs.length > 0) {
+            // Ambil subkategori dengan akurasi tertinggi sebagai kekuatan (misal persentase >= 60%)
+            let maxPct = subStats[sortedSubs[0]].pct;
+            sortedSubs.forEach(k => {
+                if (subStats[k].pct === maxPct || (subStats[k].pct >= 70 && strengthList.length < 2)) {
+                    strengthList.push(`${k} (${subStats[k].pct}%)`);
+                }
+            });
+            
+            // Ambil subkategori terendah dari belakang array sebagai kelemahan
+            let revSortedSubs = [...sortedSubs].reverse();
+            let minPct = subStats[revSortedSubs[0]].pct;
+            revSortedSubs.forEach(k => {
+                if (subStats[k].pct === minPct || (subStats[k].pct <= 50 && weaknessList.length < 2)) {
+                    if (!strengthList.includes(`${k} (${subStats[k].pct}%)`)) {
+                        weaknessList.push(`${k} (${subStats[k].pct}%)`);
+                    }
+                }
+            });
+        }
+
+        document.getElementById("dx-strength-list").innerHTML = strengthList.length ? "✔ " + strengthList.join("<br>✔ ") : "— Belum Terdeteksi Kategori Dominan";
+        document.getElementById("dx-weakness-list").innerHTML = weaknessList.length ? "❌ " + weaknessList.join("<br>❌ ") : "— Tidak Ada (Sangat Merata)";
+
+        // 2. PERBAIKAN LOGIKA IF-ELSE PREDIKAT (Diurutkan dari batas nilai tertinggi ke terendah)
+        let predikat = "Kurang Sekali";
+        let predikatColor = "var(--danger)";
+        
+        if (finalScore >= 81) {
+            predikat = "Baik";
+            predikatColor = "var(--success)";
+        } else if (finalScore >= 61) {
+            predikat = "Cukup";
+            predikatColor = "var(--gold)";
+        } else if (finalScore >= 41) {
+            predikat = "Kurang";
+            predikatColor = "#f97316";
+        } else {
+            predikat = "Kurang Sekali";
+            predikatColor = "var(--danger)";
+        }
+
+        let predikatEl = document.getElementById("res-predikat");
+        predikatEl.innerText = predikat;
+        predikatEl.style.color = predikatColor;
+
+        let dxText = document.getElementById("dx-summary-text");
+        if (finalScore >= 81) {
+            dxText.className = "dx-box strength";
+            dxText.innerText = "Diagnosis Utama: Kompetensi Unggul (Baik). Peserta menunjukkan stabilitas penalaran kognitif yang tajam, pemahaman pola tinggi, serta akurasi pengerjaan yang sangat efisien.";
+        } else if (finalScore >= 61) {
+            dxText.className = "dx-box info";
+            dxText.innerText = "Diagnosis Utama: Kompetensi Adaptif (Cukup). Struktur penalaran umum sudah terbentuk dengan baik, namun memerlukan penguatan efisiensi waktu pada kategori tertentu.";
+        } else {
+            dxText.className = "dx-box weakness";
+            dxText.innerText = "Diagnosis Utama: Perlu Atensi Khusus (Kurang). Kapasitas penalaran memerlukan penguatan konsep pada beberapa subkategori spesifik serta pembiasaan latihan dengan batasan waktu yang ketat.";
+        }
+
+        // Tampilkan Tabel Kategori
+        let tBody = document.getElementById("category-table-body");
+        tBody.innerHTML = "";
+        Object.keys(subStats).forEach(subK => {
+            let item = subStats[subK];
+            let avgTime = Math.round(timeUsedTotal / rawData.length); 
+            let row = `<tr>
+                <td><strong>${item.catName}</strong></td>
+                <td>${subK}</td>
+                <td>${item.total} Soal</td>
+                <td style="color:var(--success); font-weight:700;">${item.correct}</td>
+                <td style="color:var(--danger); font-weight:700;">${item.total - item.correct}</td>
+                <td>0</td>
+                <td><span style="font-weight:700; color:${item.pct >= 70 ? 'var(--success)' : (item.pct >= 50 ? 'var(--gold)' : 'var(--danger)')}">${item.pct}%</span></td>
+                <td>${avgTime}s / soal</td>
+            </tr>`;
+            tBody.innerHTML += row;
+        });
+
+        // Bintang Profil Kemampuan
+        let starBox = document.getElementById("star-profile-box");
+        starBox.innerHTML = "";
+        Object.keys(catStats).forEach(cName => {
+            let item = catStats[cName];
+            let pct = Math.round((item.correct / item.total) * 5);
+            let stars = "⭐".repeat(pct) || "⚪";
+            starBox.innerHTML += `<div class="profile-row"><span>${cName}</span><span class="profile-stars">${stars}</span></div>`;
+        });
+
+        // Rekomendasi
+        let recBox = document.getElementById("res-recommendation-box");
+        if (weaknessList.length > 0) {
+            recBox.innerHTML = `Fokus utama program remedial pengerjaan ada pada pengayaan materi subkategori <strong>${sortedSubs[sortedSubs.length - 1]}</strong>. Lakukan akselerasi pengerjaan minimal 30 variasi model kuis per minggu untuk membangun ketahanan fokus kognitif.`;
+        } else {
+            recBox.innerHTML = "Pertahankan ritme belajar Anda. Fokus pada simulasi manajemen waktu penuh untuk meningkatkan konsistensi nilai pengerjaan kuis.";
+        }
+
+        // Tampilkan Ulasan Pembahasan Detail
+        let analysisContainer = document.getElementById("analysis-container");
+        analysisContainer.innerHTML = "";
+        rawData.forEach((q, i) => {
+            let uAns = userAns[i];
+            let isCorrect = uAns === q.a;
+            let ansText = uAns !== null ? `${String.fromCharCode(65 + uAns)}. ${q.o[uAns]}` : '<span style="color:var(--danger); font-style:italic;">Tidak Dijawab</span>';
+            let keyText = `${String.fromCharCode(65 + q.a)}. ${q.o[q.a]}`;
+            
+            let itemHtml = `
+                <div class="analysis-item ${isCorrect ? 'is-correct' : 'is-wrong'}">
+                    <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:3px;">Soal Nomor ${i + 1} [Kategori: ${q.category} — ${q.subCategory}]</div>
+                    <div class="status-indicator ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Benar' : 'Salah'}</div>
+                    <p style="font-size:14px; margin-bottom:6px; font-weight:500; color:var(--text-dark);">${q.q}</p>
+                    <div style="font-size:12px; margin-bottom:2px;"><strong>Jawaban Anda:</strong> ${ansText}</div>
+                    <div style="font-size:12px; margin-bottom:4px;"><strong>Kunci Jawaban:</strong> <span style="color:var(--success); font-weight:700;\">${keyText}</span></div>
+                    <div class="explanation-text"><strong>Pembahasan:</strong> ${q.exp}</div>
+                </div>`;
+            analysisContainer.innerHTML += itemHtml;
+        });
+
+        localStorage.removeItem(APP_STORAGE_KEY); 
+        activeScreen("result-screen");
+    }
+</script>
+</body>
+</html>
